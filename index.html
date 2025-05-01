@@ -1,11 +1,22 @@
+# Let's create a full HTML file containing all features user requested.
+html_code = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel</title>
   <style>
     :root {
+      --bg: #f0f2f5;
+      --text: #000;
+      --card: #fff;
+      --sidebar: #222;
+      --header: #333;
+      --input-bg: #fff;
+      --input-text: #000;
+    }
+    .dark {
       --bg: #181818;
       --text: #f0f0f0;
       --card: #2a2a2a;
@@ -62,11 +73,11 @@
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    textarea, input[type="text"] {
+    textarea {
       width: 100%;
-      background: var(--input-bg);
-      color: var(--input-text);
-      border: none;
+      height: 100px;
+      resize: vertical;
+      background: #fff;
       border-radius: 5px;
       padding: 0.5em;
     }
@@ -77,141 +88,150 @@
     li {
       margin-bottom: 0.5em;
     }
+    input[type="text"] {
+      width: 80%;
+      padding: 0.3em;
+    }
     iframe {
       width: 100%;
       height: 300px;
       border: none;
     }
     .hidden { display: none; }
-    pre { white-space: pre-wrap; }
+    .typing { animation: typing 2s steps(30) 1s forwards; }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Admin Panel Dashboard</h1>
-  </header>
+  <header><h1>Admin Panel Dashboard</h1></header>
 
   <div id="sidebar">
     <button onclick="showTab('dashboard')">🏠 Dashboard</button>
     <button onclick="showTab('notes')">📝 Notes</button>
     <button onclick="showTab('todo')">📋 To-Do</button>
     <button onclick="showTab('embed')">📎 Embed</button>
+    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
     <button onclick="askPassword()">🔑 Enter Admin Password</button>
     <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
     <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
   </div>
 
   <div id="main">
-    <div id="dashboard" class="tab card">
-      <h2>Welcome!</h2>
-      <p>This is your fully loaded admin panel. Explore the tabs!</p>
-    </div>
-
-    <div id="notes" class="tab card hidden">
-      <h2>📝 Notes</h2>
-      <textarea placeholder="Write your notes here..."></textarea>
-    </div>
-
-    <div id="todo" class="tab card hidden">
-      <h2>📋 To-Do List</h2>
-      <input type="text" id="todoInput" placeholder="Add new task...">
-      <button onclick="addTask()">Add</button>
-      <ul id="todoList"></ul>
-    </div>
-
-    <div id="embed" class="tab card hidden">
-      <h2>📎 Embed Stuff</h2>
-      <input type="text" id="embedURL" placeholder="Paste YouTube/Docs URL">
-      <button onclick="embedURL()">Embed</button>
-      <div id="embedArea"></div>
-    </div>
-
-    <div id="dev" class="tab card hidden">
-      <h2>🧪 Dev Mode Tools</h2>
-      <p>Here you can add secret buttons, tools, or easter eggs.</p>
-    </div>
-
-    <div id="hack" class="tab card hidden">
-      <h2>👾 Terminal</h2>
-      <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
-      <pre id="terminalOutput">> Type 'help' for commands</pre>
-    </div>
+    <div id="dashboard" class="tab card"><h2>Welcome!</h2><p>This is your admin panel.</p></div>
+    <div id="notes" class="tab card hidden"><h2>📝 Notes</h2><textarea placeholder="Write your notes here..."></textarea></div>
+    <div id="todo" class="tab card hidden"><h2>📋 To-Do</h2><input type="text" id="todoInput"><button onclick="addTask()">Add</button><ul id="todoList"></ul></div>
+    <div id="embed" class="tab card hidden"><h2>📎 Embed Stuff</h2><input type="text" id="embedURL"><button onclick="embedURL()">Embed</button><div id="embedArea"></div></div>
+    <div id="dev" class="tab card hidden"><h2>🧪 Dev Mode Tools</h2><p>Secret tools activated.</p></div>
+    <div id="hack" class="tab card hidden"><h2>👾 Terminal</h2><input type="text" id="terminalInput" onkeydown="if(event.key==='Enter') runCommand()"><pre id="terminalOutput">> Type 'help' for commands</pre></div>
   </div>
 
   <script>
     let isPasswordCorrect = false;
-
+    function toggleDark() { document.body.classList.toggle('dark'); }
     function askPassword() {
-      const password = prompt("Enter the Admin Password:");
-      if (password === "admin123") {
+      const pw = prompt("Enter Admin Password:");
+      if (pw === "admin123") {
         isPasswordCorrect = true;
         document.getElementById("devBtn").classList.remove("hidden");
         document.getElementById("hackBtn").classList.remove("hidden");
-        alert("🔓 Access granted!");
-      } else {
-        alert("❌ Incorrect password.");
-      }
+        alert("Access granted!");
+      } else alert("Incorrect password.");
     }
-
-    function showTab(tabId) {
+    function showTab(id) {
       document.querySelectorAll('.tab').forEach(tab => tab.classList.add('hidden'));
-      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById(id).classList.remove('hidden');
     }
-
     function addTask() {
       const input = document.getElementById('todoInput');
       const list = document.getElementById('todoList');
-      if (input.value.trim() === "") return;
+      if (!input.value.trim()) return;
       const li = document.createElement('li');
       li.textContent = input.value;
       li.onclick = () => li.remove();
       list.appendChild(li);
       input.value = "";
     }
-
     function embedURL() {
       const url = document.getElementById("embedURL").value;
       const embedArea = document.getElementById("embedArea");
       embedArea.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
     }
-
     function runCommand() {
       const input = document.getElementById("terminalInput");
       const output = document.getElementById("terminalOutput");
-      const command = input.value.trim().toLowerCase();
+      const cmd = input.value.trim().toLowerCase();
       input.value = "";
-      let response = "> Unknown command";
-
-      if (!isPasswordCorrect && !["help", "password"].includes(command)) {
-        response = "> Please enter the correct password first!";
-        output.textContent += `\n> ${command}\n${response}`;
-        return;
-      }
-
-      switch (command) {
-        case "hello": response = "> Hello, admin!"; break;
-        case "clear": output.textContent = "> Ready for commands"; return;
-        case "help":
-          response = "> Commands: hello, help, clear, password, reveal, secret, date, ban, unban, shutdown, terminate, banall";
-          break;
-        case "date": response = `> Current Date: ${new Date().toLocaleString()}`; break;
-        case "password": response = "> Already entered."; break;
-        case "reveal":
-          response = "> Secret panel revealed!";
-          document.getElementById("dev").classList.remove("hidden");
-          break;
-        case "secret":
-          response = "> Secret message: Welcome, elite user!";
-          break;
-        case "ban": response = "> User has been banned."; break;
-        case "unban": response = "> User has been unbanned."; break;
-        case "shutdown": response = "> System is shutting down... just kidding!"; break;
-        case "terminate": response = "> Termination sequence started... terminated!"; break;
-        case "banall": response = "> All users have been banned. (simulated)"; break;
-      }
-
-      output.textContent += `\n> ${command}\n${response}`;
+      let res = "> Unknown command";
+      const commands = {
+        "help": "Available: help, clear, password, date, darkmode on/off, reveal, secret, ban, unban, shutdown, terminate, version, info, github, contact, reload, theme, secret2, ping, time, echo, credits, hack, rules, status, unlock, lockdown, admin, weather, code, reboot, reset, cmdlist, open dev, open terminal, exit, simulate, hackmode, color, zoom, wiki, dance, background, beep, system, safe, fakeban, joke, update, upgrade, shutdown all, debug",
+        "clear": "> Ready for commands",
+        "password": "Type askPassword() to unlock dev tools",
+        "date": new Date().toLocaleString(),
+        "darkmode on": (toggleDark(), "> Dark mode enabled"),
+        "darkmode off": (toggleDark(), "> Dark mode disabled"),
+        "reveal": isPasswordCorrect ? (document.getElementById("dev").classList.remove("hidden"), "> Dev mode revealed") : "> Access denied",
+        "secret": isPasswordCorrect ? "🧠 You’ve unlocked hidden knowledge!" : "> Access denied",
+        "ban": "User has been banned. (simulated)",
+        "unban": "User has been unbanned. (simulated)",
+        "shutdown": "System shutdown initiated... (not really)",
+        "terminate": "Process terminated. (pretend)",
+        "shutdown all": "All users forcefully logged out. (pretend)",
+        "fakeban": "🔒 This is just a prank.",
+        "joke": "Why do programmers prefer dark mode? Because light attracts bugs.",
+        "version": "Admin Panel v2.1.0",
+        "info": "This is a custom admin interface.",
+        "github": "https://github.com/dryedras1n/Admin-pannle/",
+        "contact": "Contact: dev@example.com",
+        "reload": "Please press Ctrl+R or F5.",
+        "theme": "Use darkmode on/off",
+        "secret2": "🔓 You're deep in the system now.",
+        "ping": "Pinging... pong! 48ms",
+        "time": new Date().toLocaleTimeString(),
+        "echo": "Echo echo...",
+        "credits": "Made by Dryedras1n + AI Assistant",
+        "hack": "Hacking mainframe... just kidding.",
+        "rules": "1. No spam. 2. Respect admins.",
+        "status": "🟢 All systems operational",
+        "unlock": "You need password for deeper access.",
+        "lockdown": "🔐 All tabs locked. (not really)",
+        "admin": "You're the admin here.",
+        "weather": "Simulated weather: Sunny ☀️",
+        "code": "<div>Hello world!</div>",
+        "reboot": "Rebooting interface... (pretend)",
+        "reset": "Settings reset. (not really)",
+        "cmdlist": "Try 'help' for a full list.",
+        "open dev": showTab("dev"),
+        "open terminal": showTab("hack"),
+        "exit": "Logging out... just kidding.",
+        "simulate": "Running simulation... complete.",
+        "hackmode": "Hacker mode enabled (visual only)",
+        "color": "Customize with CSS variables!",
+        "zoom": "Zoom in/out with Ctrl+Mousewheel.",
+        "wiki": "Visit https://en.wikipedia.org",
+        "dance": "💃🕺 dancing...",
+        "background": "Set with CSS var(--bg)",
+        "beep": "🔔 Beep! (silently)",
+        "system": "Admin system v1 online.",
+        "safe": "System is secure.",
+        "update": "Checking for updates... up to date.",
+        "upgrade": "Upgrading... all features unlocked.",
+        "debug": "Debug log initialized."
+      };
+      if (cmd in commands) res = commands[cmd];
+      if (typeof res !== "string") return; // ignore showTab() functions
+      if (cmd === "clear") output.textContent = res;
+      else output.textContent += `\\n> ${cmd}\\n${res}`;
     }
   </script>
 </body>
 </html>
+"""
+
+# Save to file so user can download it
+file_path = "/mnt/data/AdminPanel_Combined.html"
+with open(file_path, "w") as f:
+    f.write(html_code)
+file_path
