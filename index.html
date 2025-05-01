@@ -11,6 +11,8 @@
       --card: #fff;
       --sidebar: #222;
       --header: #333;
+      --input-bg: #fff;
+      --input-text: #000;
     }
     .dark {
       --bg: #181818;
@@ -18,6 +20,8 @@
       --card: #2a2a2a;
       --sidebar: #111;
       --header: #000;
+      --input-bg: #444;
+      --input-text: #fff;
     }
     body {
       margin: 0;
@@ -92,6 +96,11 @@
       border: none;
     }
     .hidden { display: none; }
+    .typing { animation: typing 2s steps(30) 1s forwards; }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -105,9 +114,9 @@
     <button onclick="showTab('todo')">📋 To-Do</button>
     <button onclick="showTab('embed')">📎 Embed</button>
     <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
-    <button onclick="unlock()">🔐 Unlock Admin Tools</button>
+    <button onclick="askPassword()">🔑 Enter Admin Password</button>
     <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
-    <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Hack Terminal</button>
+    <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
   </div>
 
   <div id="main">
@@ -141,25 +150,28 @@
     </div>
 
     <div id="hack" class="tab card hidden">
-      <h2>👾 Fake Terminal</h2>
+      <h2>👾 Terminal</h2>
       <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
-      <pre id="terminalOutput">> Ready for commands</pre>
+      <pre id="terminalOutput" class="typing">> Type 'help' for commands</pre>
     </div>
   </div>
 
   <script>
+    let isPasswordCorrect = false;
+
     function toggleDark() {
       document.body.classList.toggle('dark');
     }
 
-    function unlock() {
-      const code = prompt("Enter admin unlock code:");
-      if (code === "1234") {
+    function askPassword() {
+      const password = prompt("Enter the Admin Password:");
+      if (password === "admin123") {
+        isPasswordCorrect = true;
         document.getElementById("devBtn").classList.remove("hidden");
         document.getElementById("hackBtn").classList.remove("hidden");
-        alert("✅ Admin tools unlocked!");
+        alert("🔓 Access granted!");
       } else {
-        alert("❌ Incorrect code.");
+        alert("❌ Incorrect password.");
       }
     }
 
@@ -192,6 +204,10 @@
       input.value = "";
       let response = "> Unknown command";
 
+      if (!isPasswordCorrect && command !== "password") {
+        response = "> Please enter the correct password first!";
+      }
+
       switch (command) {
         case "hello":
           response = "> Hello, admin!";
@@ -200,10 +216,37 @@
           output.textContent = "> Ready for commands";
           return;
         case "help":
-          response = "> Commands: hello, clear, help";
+          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date";
           break;
-        case "status":
-          response = "> System running normally.";
+        case "date":
+          response = `> Current Date: ${new Date().toLocaleString()}`;
+          break;
+        case "darkmode on":
+          toggleDark();
+          response = "> Dark mode activated.";
+          break;
+        case "darkmode off":
+          toggleDark();
+          response = "> Dark mode deactivated.";
+          break;
+        case "password":
+          response = "> Enter the password to unlock secret commands.";
+          break;
+        case "reveal":
+          if (isPasswordCorrect) {
+            response = "> Secret panel revealed!";
+            document.getElementById("dev").classList.remove("hidden");
+          } else {
+            response = "> Incorrect password. Cannot reveal secret.";
+          }
+          break;
+        case "secret":
+          if (isPasswordCorrect) {
+            response = "> Secret message: Welcome, elite user!";
+            // Trigger some fun animation or reveal content here
+          } else {
+            response = "> Incorrect password.";
+          }
           break;
       }
       output.textContent += `\n> ${command}\n${response}`;
