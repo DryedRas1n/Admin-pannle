@@ -6,15 +6,6 @@
   <title>Admin Panel</title>
   <style>
     :root {
-      --bg: #f0f2f5;
-      --text: #000;
-      --card: #fff;
-      --sidebar: #222;
-      --header: #333;
-      --input-bg: #fff;
-      --input-text: #000;
-    }
-    .dark {
       --bg: #181818;
       --text: #f0f0f0;
       --card: #2a2a2a;
@@ -71,11 +62,11 @@
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    textarea {
+    textarea, input[type="text"] {
       width: 100%;
-      height: 100px;
-      resize: vertical;
-      background: #fff;
+      background: var(--input-bg);
+      color: var(--input-text);
+      border: none;
       border-radius: 5px;
       padding: 0.5em;
     }
@@ -86,21 +77,13 @@
     li {
       margin-bottom: 0.5em;
     }
-    input[type="text"] {
-      width: 80%;
-      padding: 0.3em;
-    }
     iframe {
       width: 100%;
       height: 300px;
       border: none;
     }
     .hidden { display: none; }
-    .typing { animation: typing 2s steps(30) 1s forwards; }
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
+    pre { white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -113,7 +96,6 @@
     <button onclick="showTab('notes')">📝 Notes</button>
     <button onclick="showTab('todo')">📋 To-Do</button>
     <button onclick="showTab('embed')">📎 Embed</button>
-    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
     <button onclick="askPassword()">🔑 Enter Admin Password</button>
     <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
     <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
@@ -152,16 +134,12 @@
     <div id="hack" class="tab card hidden">
       <h2>👾 Terminal</h2>
       <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
-      <pre id="terminalOutput" class="typing">> Type 'help' for commands</pre>
+      <pre id="terminalOutput">> Type 'help' for commands</pre>
     </div>
   </div>
 
   <script>
     let isPasswordCorrect = false;
-
-    function toggleDark() {
-      document.body.classList.toggle('dark');
-    }
 
     function askPassword() {
       const password = prompt("Enter the Admin Password:");
@@ -186,7 +164,7 @@
       if (input.value.trim() === "") return;
       const li = document.createElement('li');
       li.textContent = input.value;
-      li.onclick = () => li.remove(); // click to remove
+      li.onclick = () => li.remove();
       list.appendChild(li);
       input.value = "";
     }
@@ -204,63 +182,34 @@
       input.value = "";
       let response = "> Unknown command";
 
-      if (!isPasswordCorrect && command !== "password") {
+      if (!isPasswordCorrect && !["help", "password"].includes(command)) {
         response = "> Please enter the correct password first!";
+        output.textContent += `\n> ${command}\n${response}`;
+        return;
       }
 
       switch (command) {
-        case "hello":
-          response = "> Hello, admin!";
-          break;
-        case "clear":
-          output.textContent = "> Ready for commands";
-          return;
+        case "hello": response = "> Hello, admin!"; break;
+        case "clear": output.textContent = "> Ready for commands"; return;
         case "help":
-          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date, unlock, showtime, clearlist, about";
+          response = "> Commands: hello, help, clear, password, reveal, secret, date, ban, unban, shutdown, terminate, banall";
           break;
-        case "date":
-          response = `> Current Date: ${new Date().toLocaleString()}`;
-          break;
-        case "darkmode on":
-          toggleDark();
-          response = "> Dark mode activated.";
-          break;
-        case "darkmode off":
-          toggleDark();
-          response = "> Dark mode deactivated.";
-          break;
-        case "password":
-          response = "> Enter the password to unlock secret commands.";
-          break;
+        case "date": response = `> Current Date: ${new Date().toLocaleString()}`; break;
+        case "password": response = "> Already entered."; break;
         case "reveal":
-          if (isPasswordCorrect) {
-            response = "> Secret panel revealed!";
-            document.getElementById("dev").classList.remove("hidden");
-          } else {
-            response = "> Incorrect password. Cannot reveal secret.";
-          }
+          response = "> Secret panel revealed!";
+          document.getElementById("dev").classList.remove("hidden");
           break;
         case "secret":
-          if (isPasswordCorrect) {
-            response = "> Secret message: Welcome, elite user!";
-          } else {
-            response = "> Incorrect password.";
-          }
+          response = "> Secret message: Welcome, elite user!";
           break;
-        case "unlock":
-          response = "> Unlocking fun features... You are an elite user!";
-          break;
-        case "showtime":
-          response = `> Current Time: ${new Date().toLocaleTimeString()}`;
-          break;
-        case "clearlist":
-          document.getElementById("todoList").innerHTML = "";
-          response = "> To-Do list cleared.";
-          break;
-        case "about":
-          response = "> Admin Panel: This is a fully customizable admin panel with secret features!";
-          break;
+        case "ban": response = "> User has been banned."; break;
+        case "unban": response = "> User has been unbanned."; break;
+        case "shutdown": response = "> System is shutting down... just kidding!"; break;
+        case "terminate": response = "> Termination sequence started... terminated!"; break;
+        case "banall": response = "> All users have been banned. (simulated)"; break;
       }
+
       output.textContent += `\n> ${command}\n${response}`;
     }
   </script>
