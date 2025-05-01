@@ -443,3 +443,129 @@ function runCommand() {
             // Display the command and the response
             output.textContent += `\n> ${command}\n${response}`;
             output.scrollTop = output.scroll
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel Terminal</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: black;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        #terminalOutput {
+            padding: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        #terminalInput {
+            background-color: black;
+            border: none;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #terminalInput:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminalOutput">> Welcome to the Admin Panel. Please enter your password.</div>
+    <input type="text" id="terminalInput" onkeydown="handleKey(event)" placeholder="Type a command..." />
+    
+    <script>
+        let isPasswordCorrect = false;  // Flag for password check
+        const correctPassword = "admin123";  // Set your password here
+
+        // Function to handle the input and execute commands
+        function handleKey(event) {
+            if (event.key === "Enter") {
+                runCommand();
+            }
+        }
+
+        // Run the command entered by the user
+        function runCommand() {
+            const input = document.getElementById("terminalInput");
+            const output = document.getElementById("terminalOutput");
+            const command = input.value.trim().toLowerCase();
+            input.value = "";  // Clear input field after entering the command
+            let response = "> Unknown command";
+
+            // Check if password is correct before executing any commands
+            if (!isPasswordCorrect && command !== "password") {
+                response = "> Please enter the correct password first!";
+            } else if (command === "password" && !isPasswordCorrect) {
+                const password = prompt("Enter password:");
+                if (password === correctPassword) {
+                    isPasswordCorrect = true;
+                    response = "> Password correct! Welcome, admin.";
+                } else {
+                    response = "> Incorrect password. Try again.";
+                }
+            } else {
+                switch (command) {
+                    case "hello":
+                        response = "> Hello, admin!";
+                        break;
+                    case "backup":
+                        response = "> Backup process started (simulated).";
+                        break;
+                    case "restore":
+                        response = "> Restoring from backup (simulated).";
+                        break;
+                    case "draw square":
+                        response = "> Drawing a square: \n####\n#  #\n#  #\n####";
+                        break;
+                    case "coinflip":
+                        response = "> Coin flip result: Heads!";
+                        break;
+                    case "rps":
+                        response = "> Starting rock-paper-scissors!";
+                        // You can add rock-paper-scissors game logic here if you'd like
+                        break;
+                    case "weather":
+                        response = "> Weather forecast: Sunny, 25°C.";
+                        break;
+                    case "joke":
+                        response = "> Why don’t skeletons fight each other? They don’t have the guts!";
+                        break;
+                    case "simulateerror":
+                        response = "> Simulating an error...";
+                        // You can simulate an error in the system if you'd like
+                        break;
+                    case "mysterybox":
+                        response = "> You opened the mystery box and found a rare item!";
+                        break;
+                    case "shutdown":
+                        response = "> Shutting down system (simulated).";
+                        break;
+                    case "reboot":
+                        response = "> Rebooting system (simulated).";
+                        break;
+                    case "clear":
+                        document.getElementById("terminalOutput").textContent = "";
+                        response = "> Terminal cleared.";
+                        break;
+                    // More commands can be added here as needed.
+                    default:
+                        response = "> Command not found.";
+                        break;
+                }
+            }
+
+            // Display the command and the response
+            output.textContent += `\n> ${command}\n${response}`;
+            output.scrollTop = output.scrollHeight;  // Auto-scroll to the bottom
+        }
+    </script>
+</body>
+</html>
