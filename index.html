@@ -1,178 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <style>
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: black;
-            color: white;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Style for menu */
-        #menu {
-            background-color: #333;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        #menu button {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-
-        #menu button:hover {
-            background-color: #555;
-        }
-
-        /* Terminal Output Section */
-        #terminalOutput {
-            padding: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            height: 300px;
-            overflow-y: scroll;
-            margin-top: 20px;
-            background-color: #1e1e1e;
-        }
-
-        /* Terminal Input Section */
-        #terminalInput {
-            background-color: #222;
-            border: none;
-            color: white;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-        }
-
-        #terminalInput:focus {
-            outline: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --text: #000;
+      --card: #fff;
+      --sidebar: #222;
+      --header: #333;
+      --input-bg: #fff;
+      --input-text: #000;
+    }
+    .dark {
+      --bg: #181818;
+      --text: #f0f0f0;
+      --card: #2a2a2a;
+      --sidebar: #111;
+      --header: #000;
+      --input-bg: #444;
+      --input-text: #fff;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: 0.3s ease;
+    }
+    header {
+      background: var(--header);
+      color: var(--text);
+      padding: 1em;
+      text-align: center;
+    }
+    #sidebar {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      width: 200px;
+      height: calc(100% - 60px);
+      background: var(--sidebar);
+      color: white;
+      padding-top: 1em;
+      box-sizing: border-box;
+    }
+    #sidebar a, #sidebar button {
+      display: block;
+      color: white;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0.8em 1em;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+    #sidebar a:hover, #sidebar button:hover {
+      background: #444;
+    }
+    #main {
+      margin-left: 200px;
+      padding: 2em;
+    }
+    .card {
+      background: var(--card);
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      resize: vertical;
+      background: #fff;
+      border-radius: 5px;
+      padding: 0.5em;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 0.5em;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 0.3em;
+    }
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: none;
+    }
+    .hidden { display: none; }
+    .typing { animation: typing 2s steps(30) 1s forwards; }
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Menu Section -->
-    <div id="menu">
-        <button onclick="toggleTerminal()">Toggle Terminal</button>
-        <button onclick="clearTerminal()">Clear Terminal</button>
-        <button onclick="showHelp()">Help</button>
+  <header>
+    <h1>Admin Panel Dashboard</h1>
+  </header>
+
+  <div id="sidebar">
+    <button onclick="showTab('dashboard')">🏠 Dashboard</button>
+    <button onclick="showTab('notes')">📝 Notes</button>
+    <button onclick="showTab('todo')">📋 To-Do</button>
+    <button onclick="showTab('embed')">📎 Embed</button>
+    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+    <button onclick="askPassword()">🔑 Enter Admin Password</button>
+    <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
+    <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
+  </div>
+
+  <div id="main">
+    <div id="dashboard" class="tab card">
+      <h2>Welcome!</h2>
+      <p>This is your fully loaded admin panel. Explore the tabs!</p>
     </div>
 
-    <!-- Terminal Section -->
-    <div id="terminalSection" style="display: none;">
-        <div id="terminalOutput">> Welcome to the Admin Panel. Please enter your password.</div>
-        <input type="text" id="terminalInput" onkeydown="handleKey(event)" placeholder="Type a command..." />
+    <div id="notes" class="tab card hidden">
+      <h2>📝 Notes</h2>
+      <textarea placeholder="Write your notes here..."></textarea>
     </div>
 
-    <script>
-        let isPasswordCorrect = false; // Flag for password check
-        const correctPassword = "admin123"; // Set your password here
+    <div id="todo" class="tab card hidden">
+      <h2>📋 To-Do List</h2>
+      <input type="text" id="todoInput" placeholder="Add new task...">
+      <button onclick="addTask()">Add</button>
+      <ul id="todoList"></ul>
+    </div>
 
-        // Toggle Terminal Visibility
-        function toggleTerminal() {
-            const terminalSection = document.getElementById('terminalSection');
-            terminalSection.style.display = terminalSection.style.display === 'none' ? 'block' : 'none';
-        }
+    <div id="embed" class="tab card hidden">
+      <h2>📎 Embed Stuff</h2>
+      <input type="text" id="embedURL" placeholder="Paste YouTube/Docs URL">
+      <button onclick="embedURL()">Embed</button>
+      <div id="embedArea"></div>
+    </div>
 
-        // Clear Terminal Output
-        function clearTerminal() {
-            document.getElementById("terminalOutput").textContent = "";
-        }
+    <div id="dev" class="tab card hidden">
+      <h2>🧪 Dev Mode Tools</h2>
+      <p>Here you can add secret buttons, tools, or easter eggs.</p>
+    </div>
 
-        // Show Help in Terminal
-        function showHelp() {
-            const output = document.getElementById("terminalOutput");
-            output.textContent += "\n> Available commands: \npassword - Enter password\nhello - Greet the admin\nbackup - Start backup\nrestore - Restore from backup\ndraw square - Draw a square\ncoinflip - Flip a coin\nrps - Play rock-paper-scissors\nweather - Show weather\njoke - Get a joke\nsimulateerror - Simulate an error\nmysterybox - Open a mystery box\nshutdown - Shutdown system\nreboot - Reboot system\nclear - Clear terminal\nhelp - Show help";
-        }
+    <div id="hack" class="tab card hidden">
+      <h2>👾 Terminal</h2>
+      <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
+      <pre id="terminalOutput" class="typing">> Type 'help' for commands</pre>
+    </div>
+  </div>
 
-        // Handle the terminal input commands
-        function handleKey(event) {
-            if (event.key === "Enter") {
-                runCommand();
-            }
-        }
+  <script>
+    let isPasswordCorrect = false;
 
-        // Run the command entered by the user
-        function runCommand() {
-            const input = document.getElementById("terminalInput");
-            const output = document.getElementById("terminalOutput");
-            const command = input.value.trim().toLowerCase();
-            input.value = "";  // Clear input field after entering the command
-            let response = "> Unknown command";
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+    }
 
-            // Check if password is correct before executing any commands
-            if (!isPasswordCorrect && command !== "password") {
-                response = "> Please enter the correct password first!";
-            } else if (command === "password" && !isPasswordCorrect) {
-                const password = prompt("Enter password:");
-                if (password === correctPassword) {
-                    isPasswordCorrect = true;
-                    response = "> Password correct! Welcome, admin.";
-                } else {
-                    response = "> Incorrect password. Try again.";
-                }
-            } else {
-                switch (command) {
-                    case "hello":
-                        response = "> Hello, admin!";
-                        break;
-                    case "backup":
-                        response = "> Backup process started (simulated).";
-                        break;
-                    case "restore":
-                        response = "> Restoring from backup (simulated).";
-                        break;
-                    case "draw square":
-                        response = "> Drawing a square: \n####\n#  #\n#  #\n####";
-                        break;
-                    case "coinflip":
-                        response = "> Coin flip result: Heads!";
-                        break;
-                    case "rps":
-                        response = "> Starting rock-paper-scissors!";
-                        break;
-                    case "weather":
-                        response = "> Weather forecast: Sunny, 25°C.";
-                        break;
-                    case "joke":
-                        response = "> Why don’t skeletons fight each other? They don’t have the guts!";
-                        break;
-                    case "simulateerror":
-                        response = "> Simulating an error...";
-                        break;
-                    case "mysterybox":
-                        response = "> You opened the mystery box and found a rare item!";
-                        break;
-                    case "shutdown":
-                        response = "> Shutting down system (simulated).";
-                        break;
-                    case "reboot":
-                        response = "> Rebooting system (simulated).";
-                        break;
-                    case "clear":
-                        document.getElementById("terminalOutput").textContent = "";
-                        response = "> Terminal cleared.";
-                        break;
-                    default:
-                        response = "> Command not found.";
-                        break;
-                }
-            }
+    function askPassword() {
+      const password = prompt("Enter the Admin Password:");
+      if (password === "admin123") {
+        isPasswordCorrect = true;
+        document.getElementById("devBtn").classList.remove("hidden");
+        document.getElementById("hackBtn").classList.remove("hidden");
+        alert("🔓 Access granted!");
+      } else {
+        alert("❌ Incorrect password.");
+      }
+    }
 
-            // Display the command and the response
-            output.textContent += `\n> ${command}\n${response}`;
-            output.scrollTop = output.scrollHeight;  // Auto-scroll to the bottom
-        }
-    </script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+    }
+
+    function addTask() {
+      const input = document.getElementById('todoInput');
+      const list = document.getElementById('todoList');
+      if (input.value.trim() === "") return;
+      const li = document.createElement('li');
+      li.textContent = input.value;
+      li.onclick = () => li.remove(); // click to remove
+      list.appendChild(li);
+      input.value = "";
+    }
+
+    function embedURL() {
+      const url = document.getElementById("embedURL").value;
+      const embedArea = document.getElementById("embedArea");
+      embedArea.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    }
+
+    function runCommand() {
+      const input = document.getElementById("terminalInput");
+      const output = document.getElementById("terminalOutput");
+      const command = input.value.trim().toLowerCase();
+      input.value = "";
+      let response = "> Unknown command";
+
+      if (!isPasswordCorrect && command !== "password") {
+        response = "> Please enter the correct password first!";
+      }
+
+      switch (command) {
+        case "hello":
+          response = "> Hello, admin!";
+          break;
+        case "clear":
+          output.textContent = "> Ready for commands";
+          return;
+        case "help":
+          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date";
+          break;
+        case "date":
+          response = `> Current Date: ${new Date().toLocaleString()}`;
+          break;
+        case "darkmode on":
+          toggleDark();
+          response = "> Dark mode activated.";
+          break;
+        case "darkmode off":
+          toggleDark();
+          response = "> Dark mode deactivated.";
+          break;
+        case "password":
+          response = "> Enter the password to unlock secret commands.";
+          break;
+        case "reveal":
+          if (isPasswordCorrect) {
+            response = "> Secret panel revealed!";
+            document.getElementById("dev").classList.remove("hidden");
+          } else {
+            response = "> Incorrect password. Cannot reveal secret.";
+          }
+          break;
+        case "secret":
+          if (isPasswordCorrect) {
+            response = "> Secret message: Welcome, elite user!";
+            // Trigger some fun animation or reveal content here
+          } else {
+            response = "> Incorrect password.";
+          }
+          break;
+      }
+      output.textContent += `\n> ${command}\n${response}`;
+    }
+  </script>
 </body>
 </html>
