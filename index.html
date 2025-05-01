@@ -86,6 +86,11 @@
       width: 80%;
       padding: 0.3em;
     }
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: none;
+    }
     .hidden { display: none; }
   </style>
 </head>
@@ -93,31 +98,52 @@
   <header>
     <h1>Admin Panel Dashboard</h1>
   </header>
+
   <div id="sidebar">
-    <a href="#">🏠 Dashboard</a>
-    <a href="#">⚙️ Settings</a>
-    <a href="#">📁 Files</a>
+    <button onclick="showTab('dashboard')">🏠 Dashboard</button>
+    <button onclick="showTab('notes')">📝 Notes</button>
+    <button onclick="showTab('todo')">📋 To-Do</button>
+    <button onclick="showTab('embed')">📎 Embed</button>
     <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
     <button onclick="unlock()">🔐 Unlock Admin Tools</button>
-    <a href="#" id="devLink" class="hidden">🧪 Dev Mode</a>
-    <a href="#" id="hackLink" class="hidden">👾 Hack Tools</a>
+    <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
+    <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Hack Terminal</button>
   </div>
+
   <div id="main">
-    <div class="card">
+    <div id="dashboard" class="tab card">
       <h2>Welcome!</h2>
-      <p>This is your upgraded admin panel. Now with dark mode and notes/todo!</p>
+      <p>This is your fully loaded admin panel. Explore the tabs!</p>
     </div>
 
-    <div class="card">
+    <div id="notes" class="tab card hidden">
       <h2>📝 Notes</h2>
       <textarea placeholder="Write your notes here..."></textarea>
     </div>
 
-    <div class="card">
+    <div id="todo" class="tab card hidden">
       <h2>📋 To-Do List</h2>
       <input type="text" id="todoInput" placeholder="Add new task...">
       <button onclick="addTask()">Add</button>
       <ul id="todoList"></ul>
+    </div>
+
+    <div id="embed" class="tab card hidden">
+      <h2>📎 Embed Stuff</h2>
+      <input type="text" id="embedURL" placeholder="Paste YouTube/Docs URL">
+      <button onclick="embedURL()">Embed</button>
+      <div id="embedArea"></div>
+    </div>
+
+    <div id="dev" class="tab card hidden">
+      <h2>🧪 Dev Mode Tools</h2>
+      <p>Here you can add secret buttons, tools, or easter eggs.</p>
+    </div>
+
+    <div id="hack" class="tab card hidden">
+      <h2>👾 Fake Terminal</h2>
+      <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
+      <pre id="terminalOutput">> Ready for commands</pre>
     </div>
   </div>
 
@@ -129,12 +155,17 @@
     function unlock() {
       const code = prompt("Enter admin unlock code:");
       if (code === "1234") {
-        document.getElementById("devLink").classList.remove("hidden");
-        document.getElementById("hackLink").classList.remove("hidden");
-        alert("✅ Tools unlocked!");
+        document.getElementById("devBtn").classList.remove("hidden");
+        document.getElementById("hackBtn").classList.remove("hidden");
+        alert("✅ Admin tools unlocked!");
       } else {
         alert("❌ Incorrect code.");
       }
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
     }
 
     function addTask() {
@@ -146,6 +177,36 @@
       li.onclick = () => li.remove(); // click to remove
       list.appendChild(li);
       input.value = "";
+    }
+
+    function embedURL() {
+      const url = document.getElementById("embedURL").value;
+      const embedArea = document.getElementById("embedArea");
+      embedArea.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    }
+
+    function runCommand() {
+      const input = document.getElementById("terminalInput");
+      const output = document.getElementById("terminalOutput");
+      const command = input.value.trim().toLowerCase();
+      input.value = "";
+      let response = "> Unknown command";
+
+      switch (command) {
+        case "hello":
+          response = "> Hello, admin!";
+          break;
+        case "clear":
+          output.textContent = "> Ready for commands";
+          return;
+        case "help":
+          response = "> Commands: hello, clear, help";
+          break;
+        case "status":
+          response = "> System running normally.";
+          break;
+      }
+      output.textContent += `\n> ${command}\n${response}`;
     }
   </script>
 </body>
