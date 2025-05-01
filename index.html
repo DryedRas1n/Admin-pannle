@@ -45,7 +45,6 @@
       background: var(--sidebar);
       color: white;
       padding-top: 1em;
-      box-sizing: border-box;
     }
     #sidebar a, #sidebar button {
       display: block;
@@ -217,7 +216,7 @@
           output.textContent = "> Ready for commands";
           return;
         case "help":
-          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date";
+          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date, unlock, showtime, clearlist, about";
           break;
         case "date":
           response = `> Current Date: ${new Date().toLocaleString()}`;
@@ -244,10 +243,22 @@
         case "secret":
           if (isPasswordCorrect) {
             response = "> Secret message: Welcome, elite user!";
-            // Trigger some fun animation or reveal content here
           } else {
             response = "> Incorrect password.";
           }
+          break;
+        case "unlock":
+          response = "> Unlocking fun features... You are an elite user!";
+          break;
+        case "showtime":
+          response = `> Current Time: ${new Date().toLocaleTimeString()}`;
+          break;
+        case "clearlist":
+          document.getElementById("todoList").innerHTML = "";
+          response = "> To-Do list cleared.";
+          break;
+        case "about":
+          response = "> Admin Panel: This is a fully customizable admin panel with secret features!";
           break;
       }
       output.textContent += `\n> ${command}\n${response}`;
