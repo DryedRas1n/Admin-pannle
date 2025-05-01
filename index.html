@@ -5,14 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel</title>
   <style>
+    :root {
+      --bg: #f0f2f5;
+      --text: #000;
+      --card: #fff;
+      --sidebar: #222;
+      --header: #333;
+    }
+    .dark {
+      --bg: #181818;
+      --text: #f0f0f0;
+      --card: #2a2a2a;
+      --sidebar: #111;
+      --header: #000;
+    }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      background: var(--bg);
+      color: var(--text);
+      transition: 0.3s ease;
     }
     header {
-      background: #333;
-      color: white;
+      background: var(--header);
+      color: var(--text);
       padding: 1em;
       text-align: center;
     }
@@ -22,17 +38,22 @@
       left: 0;
       width: 200px;
       height: calc(100% - 60px);
-      background: #222;
+      background: var(--sidebar);
       color: white;
       padding-top: 1em;
     }
-    #sidebar a {
+    #sidebar a, #sidebar button {
       display: block;
       color: white;
       text-decoration: none;
+      background: none;
+      border: none;
       padding: 0.8em 1em;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
     }
-    #sidebar a:hover {
+    #sidebar a:hover, #sidebar button:hover {
       background: #444;
     }
     #main {
@@ -40,12 +61,32 @@
       padding: 2em;
     }
     .card {
-      background: white;
+      background: var(--card);
       padding: 1em;
       margin-bottom: 1em;
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+    textarea {
+      width: 100%;
+      height: 100px;
+      resize: vertical;
+      background: #fff;
+      border-radius: 5px;
+      padding: 0.5em;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 0.5em;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 0.3em;
+    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -56,19 +97,56 @@
     <a href="#">🏠 Dashboard</a>
     <a href="#">⚙️ Settings</a>
     <a href="#">📁 Files</a>
-    <a href="#">🧪 Dev Mode</a>
-    <a href="#">👾 Hack Tools</a>
+    <button onclick="toggleDark()">🌓 Toggle Dark Mode</button>
+    <button onclick="unlock()">🔐 Unlock Admin Tools</button>
+    <a href="#" id="devLink" class="hidden">🧪 Dev Mode</a>
+    <a href="#" id="hackLink" class="hidden">👾 Hack Tools</a>
   </div>
   <div id="main">
     <div class="card">
       <h2>Welcome!</h2>
-      <p>This is your custom admin panel. Add your content, tools, or links here.</p>
+      <p>This is your upgraded admin panel. Now with dark mode and notes/todo!</p>
     </div>
+
     <div class="card">
-      <h2>Status</h2>
-      <p>Everything looks good. You can now embed this in Google Sites if you like.</p>
+      <h2>📝 Notes</h2>
+      <textarea placeholder="Write your notes here..."></textarea>
+    </div>
+
+    <div class="card">
+      <h2>📋 To-Do List</h2>
+      <input type="text" id="todoInput" placeholder="Add new task...">
+      <button onclick="addTask()">Add</button>
+      <ul id="todoList"></ul>
     </div>
   </div>
+
+  <script>
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+    }
+
+    function unlock() {
+      const code = prompt("Enter admin unlock code:");
+      if (code === "1234") {
+        document.getElementById("devLink").classList.remove("hidden");
+        document.getElementById("hackLink").classList.remove("hidden");
+        alert("✅ Tools unlocked!");
+      } else {
+        alert("❌ Incorrect code.");
+      }
+    }
+
+    function addTask() {
+      const input = document.getElementById('todoInput');
+      const list = document.getElementById('todoList');
+      if (input.value.trim() === "") return;
+      const li = document.createElement('li');
+      li.textContent = input.value;
+      li.onclick = () => li.remove(); // click to remove
+      list.appendChild(li);
+      input.value = "";
+    }
+  </script>
 </body>
 </html>
-
