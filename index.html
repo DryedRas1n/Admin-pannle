@@ -254,3 +254,70 @@
   </script>
 </body>
 </html>
+function runCommand() {
+  const input = document.getElementById("terminalInput");
+  const output = document.getElementById("terminalOutput");
+  const command = input.value.trim().toLowerCase();
+  input.value = "";
+  let response = "> Unknown command";
+
+  if (!isPasswordCorrect && command !== "password") {
+    response = "> Please enter the correct password first!";
+  }
+
+  switch (command) {
+    case "hello":
+      response = "> Hello, admin!";
+      break;
+    case "clear":
+      output.textContent = "> Ready for commands";
+      return;
+    case "help":
+      response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date, shutdown, restart, logs, ping";
+      break;
+    case "shutdown":
+      response = "> Shutting down... (simulated)";
+      break;
+    case "restart":
+      response = "> Restarting... (simulated)";
+      break;
+    case "clearcache":
+      response = "> Cache cleared. (simulated)";
+      break;
+    case "status":
+      response = "> System status: All systems running.";
+      break;
+    case "announce":
+      response = "> Broadcast message: 'Admin Panel is now online!'";
+      break;
+    case "joke":
+      response = "> Why don’t skeletons fight each other? They don’t have the guts!";
+      break;
+    case "quote":
+      response = "> 'The best way to predict the future is to invent it.' – Alan Kay";
+      break;
+    case "ping":
+      response = "> Pinging google.com... Reply from 172.217.5.78: bytes=32 time=12ms TTL=56";
+      break;
+    case "mood happy":
+      response = "> Terminal mood is happy! 😊";
+      document.body.style.backgroundColor = "#ffeb3b";
+      break;
+    case "memory":
+      response = "> Memory usage: 74% used (simulated).";
+      break;
+    case "rain":
+      response = "> Starting rain animation...";
+      // Add rain animation code here (like random falling text or lines)
+      break;
+    case "glitch":
+      response = "> Triggering glitch effect...";
+      // Add glitch text effect code here
+      break;
+    default:
+      response = "> Command not found.";
+      break;
+  }
+
+  output.textContent += `\n> ${command}\n${response}`;
+}
