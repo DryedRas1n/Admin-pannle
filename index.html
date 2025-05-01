@@ -1,9 +1,7 @@
-# Let's create a full HTML file containing all features user requested.
-html_code = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel</title>
   <style>
@@ -103,10 +101,18 @@ html_code = """
       from { width: 0; }
       to { width: 100%; }
     }
+    #terminalOutput {
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre;
+      word-wrap: break-word;
+    }
   </style>
 </head>
 <body>
-  <header><h1>Admin Panel Dashboard</h1></header>
+  <header>
+    <h1>Admin Panel Dashboard</h1>
+  </header>
 
   <div id="sidebar">
     <button onclick="showTab('dashboard')">🏠 Dashboard</button>
@@ -120,118 +126,259 @@ html_code = """
   </div>
 
   <div id="main">
-    <div id="dashboard" class="tab card"><h2>Welcome!</h2><p>This is your admin panel.</p></div>
-    <div id="notes" class="tab card hidden"><h2>📝 Notes</h2><textarea placeholder="Write your notes here..."></textarea></div>
-    <div id="todo" class="tab card hidden"><h2>📋 To-Do</h2><input type="text" id="todoInput"><button onclick="addTask()">Add</button><ul id="todoList"></ul></div>
-    <div id="embed" class="tab card hidden"><h2>📎 Embed Stuff</h2><input type="text" id="embedURL"><button onclick="embedURL()">Embed</button><div id="embedArea"></div></div>
-    <div id="dev" class="tab card hidden"><h2>🧪 Dev Mode Tools</h2><p>Secret tools activated.</p></div>
-    <div id="hack" class="tab card hidden"><h2>👾 Terminal</h2><input type="text" id="terminalInput" onkeydown="if(event.key==='Enter') runCommand()"><pre id="terminalOutput">> Type 'help' for commands</pre></div>
+    <div id="dashboard" class="tab card">
+      <h2>Welcome!</h2>
+      <p>This is your fully loaded admin panel. Explore the tabs!</p>
+    </div>
+
+    <div id="notes" class="tab card hidden">
+      <h2>📝 Notes</h2>
+      <textarea placeholder="Write your notes here..."></textarea>
+    </div>
+
+    <div id="todo" class="tab card hidden">
+      <h2>📋 To-Do List</h2>
+      <input type="text" id="todoInput" placeholder="Add new task...">
+      <button onclick="addTask()">Add</button>
+      <ul id="todoList"></ul>
+    </div>
+
+    <div id="embed" class="tab card hidden">
+      <h2>📎 Embed Stuff</h2>
+      <input type="text" id="embedURL" placeholder="Paste YouTube/Docs URL">
+      <button onclick="embedURL()">Embed</button>
+      <div id="embedArea"></div>
+    </div>
+
+    <div id="dev" class="tab card hidden">
+      <h2>🧪 Dev Mode Tools</h2>
+      <p>Here you can add secret buttons, tools, or easter eggs.</p>
+    </div>
+
+    <div id="hack" class="tab card hidden">
+      <h2>👾 Terminal</h2>
+      <input type="text" id="terminalInput" placeholder="Enter a command..." onkeydown="if(event.key==='Enter') runCommand()">
+      <pre id="terminalOutput">> Type 'help' for commands</pre>
+    </div>
   </div>
 
   <script>
     let isPasswordCorrect = false;
-    function toggleDark() { document.body.classList.toggle('dark'); }
+
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+    }
+
     function askPassword() {
-      const pw = prompt("Enter Admin Password:");
-      if (pw === "admin123") {
+      const password = prompt("Enter the Admin Password:");
+      if (password === "admin123") {
         isPasswordCorrect = true;
         document.getElementById("devBtn").classList.remove("hidden");
         document.getElementById("hackBtn").classList.remove("hidden");
-        alert("Access granted!");
-      } else alert("Incorrect password.");
+        alert("🔓 Access granted!");
+      } else {
+        alert("❌ Incorrect password.");
+      }
     }
-    function showTab(id) {
+
+    function showTab(tabId) {
       document.querySelectorAll('.tab').forEach(tab => tab.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(tabId).classList.remove('hidden');
     }
+
     function addTask() {
       const input = document.getElementById('todoInput');
       const list = document.getElementById('todoList');
-      if (!input.value.trim()) return;
+      if (input.value.trim() === "") return;
       const li = document.createElement('li');
       li.textContent = input.value;
-      li.onclick = () => li.remove();
+      li.onclick = () => li.remove(); // click to remove
       list.appendChild(li);
       input.value = "";
     }
+
     function embedURL() {
       const url = document.getElementById("embedURL").value;
       const embedArea = document.getElementById("embedArea");
       embedArea.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
     }
+
     function runCommand() {
       const input = document.getElementById("terminalInput");
       const output = document.getElementById("terminalOutput");
-      const cmd = input.value.trim().toLowerCase();
+      const command = input.value.trim().toLowerCase();
       input.value = "";
-      let res = "> Unknown command";
-      const commands = {
-        "help": "Available: help, clear, password, date, darkmode on/off, reveal, secret, ban, unban, shutdown, terminate, version, info, github, contact, reload, theme, secret2, ping, time, echo, credits, hack, rules, status, unlock, lockdown, admin, weather, code, reboot, reset, cmdlist, open dev, open terminal, exit, simulate, hackmode, color, zoom, wiki, dance, background, beep, system, safe, fakeban, joke, update, upgrade, shutdown all, debug",
-        "clear": "> Ready for commands",
-        "password": "Type askPassword() to unlock dev tools",
-        "date": new Date().toLocaleString(),
-        "darkmode on": (toggleDark(), "> Dark mode enabled"),
-        "darkmode off": (toggleDark(), "> Dark mode disabled"),
-        "reveal": isPasswordCorrect ? (document.getElementById("dev").classList.remove("hidden"), "> Dev mode revealed") : "> Access denied",
-        "secret": isPasswordCorrect ? "🧠 You’ve unlocked hidden knowledge!" : "> Access denied",
-        "ban": "User has been banned. (simulated)",
-        "unban": "User has been unbanned. (simulated)",
-        "shutdown": "System shutdown initiated... (not really)",
-        "terminate": "Process terminated. (pretend)",
-        "shutdown all": "All users forcefully logged out. (pretend)",
-        "fakeban": "🔒 This is just a prank.",
-        "joke": "Why do programmers prefer dark mode? Because light attracts bugs.",
-        "version": "Admin Panel v2.1.0",
-        "info": "This is a custom admin interface.",
-        "github": "https://github.com/dryedras1n/Admin-pannle/",
-        "contact": "Contact: dev@example.com",
-        "reload": "Please press Ctrl+R or F5.",
-        "theme": "Use darkmode on/off",
-        "secret2": "🔓 You're deep in the system now.",
-        "ping": "Pinging... pong! 48ms",
-        "time": new Date().toLocaleTimeString(),
-        "echo": "Echo echo...",
-        "credits": "Made by Dryedras1n + AI Assistant",
-        "hack": "Hacking mainframe... just kidding.",
-        "rules": "1. No spam. 2. Respect admins.",
-        "status": "🟢 All systems operational",
-        "unlock": "You need password for deeper access.",
-        "lockdown": "🔐 All tabs locked. (not really)",
-        "admin": "You're the admin here.",
-        "weather": "Simulated weather: Sunny ☀️",
-        "code": "<div>Hello world!</div>",
-        "reboot": "Rebooting interface... (pretend)",
-        "reset": "Settings reset. (not really)",
-        "cmdlist": "Try 'help' for a full list.",
-        "open dev": showTab("dev"),
-        "open terminal": showTab("hack"),
-        "exit": "Logging out... just kidding.",
-        "simulate": "Running simulation... complete.",
-        "hackmode": "Hacker mode enabled (visual only)",
-        "color": "Customize with CSS variables!",
-        "zoom": "Zoom in/out with Ctrl+Mousewheel.",
-        "wiki": "Visit https://en.wikipedia.org",
-        "dance": "💃🕺 dancing...",
-        "background": "Set with CSS var(--bg)",
-        "beep": "🔔 Beep! (silently)",
-        "system": "Admin system v1 online.",
-        "safe": "System is secure.",
-        "update": "Checking for updates... up to date.",
-        "upgrade": "Upgrading... all features unlocked.",
-        "debug": "Debug log initialized."
-      };
-      if (cmd in commands) res = commands[cmd];
-      if (typeof res !== "string") return; // ignore showTab() functions
-      if (cmd === "clear") output.textContent = res;
-      else output.textContent += `\\n> ${cmd}\\n${res}`;
+      let response = "> Unknown command";
+
+      if (!isPasswordCorrect && command !== "password") {
+        response = "> Please enter the correct password first!";
+      }
+
+      switch (command) {
+        case "hello":
+          response = "> Hello, admin!";
+          break;
+        case "clear":
+          output.textContent = "> Ready for commands";
+          return;
+        case "help":
+          response = "> Commands: help, clear, password, darkmode on, darkmode off, reveal, secret, date, ban, unban, shutdown, terminate, banall, banuser, unbanuser, info, show, hide, enable, disable, systemstatus, reset, reload, restart, showlogs, loadconfig, saveconfig, fetchdata, updatedb, deletelog, status, listusers, adduser, removeuser, addblock, removeblock, blockstatus, listblocks, grantaccess, revokeaccess, killprocess, startprocess, stopprocess, launchapp, closeapp, addfile, removefile, listfiles";
+          break;
+        case "date":
+          response = `> Current Date: ${new Date().toLocaleString()}`;
+          break;
+        case "darkmode on":
+          toggleDark();
+          response = "> Dark mode activated.";
+          break;
+        case "darkmode off":
+          toggleDark();
+          response = "> Dark mode deactivated.";
+          break;
+        case "password":
+          response = "> Enter the password to unlock secret commands.";
+          break;
+        case "reveal":
+          if (isPasswordCorrect) {
+            response = "> Secret panel revealed!";
+            document.getElementById("dev").classList.remove("hidden");
+          } else {
+            response = "> Incorrect password. Cannot reveal secret.";
+          }
+          break;
+        case "secret":
+          if (isPasswordCorrect) {
+            response = "> Secret message: Welcome, elite user!";
+          } else {
+            response = "> Incorrect password.";
+          }
+          break;
+
+        // Adding 50 commands here
+        case "ban":
+          response = "> Ban command executed!";
+          break;
+        case "unban":
+          response = "> Unban command executed!";
+          break;
+        case "shutdown":
+          response = "> System shutting down...";
+          break;
+        case "terminate":
+          response = "> Termination successful!";
+          break;
+        case "banall":
+          response = "> All users banned!";
+          break;
+        case "banuser":
+          response = "> User banned!";
+          break;
+        case "unbanuser":
+          response = "> User unbanned!";
+          break;
+        case "info":
+          response = "> System Info: v1.0, running smoothly!";
+          break;
+        case "show":
+          response = "> Show command executed!";
+          break;
+        case "hide":
+          response = "> Hide command executed!";
+          break;
+        case "enable":
+          response = "> Feature enabled!";
+          break;
+        case "disable":
+          response = "> Feature disabled!";
+          break;
+        case "systemstatus":
+          response = "> System is up and running!";
+          break;
+        case "reset":
+          response = "> Resetting system!";
+          break;
+        case "reload":
+          response = "> System reloaded!";
+          break;
+        case "restart":
+          response = "> System restarted!";
+          break;
+        case "showlogs":
+          response = "> Displaying logs...";
+          break;
+        case "loadconfig":
+          response = "> Configuration loaded!";
+          break;
+        case "saveconfig":
+          response = "> Configuration saved!";
+          break;
+        case "fetchdata":
+          response = "> Fetching data...";
+          break;
+        case "updatedb":
+          response = "> Database updated!";
+          break;
+        case "deletelog":
+          response = "> Log deleted!";
+          break;
+        case "status":
+          response = "> Status: All systems operational!";
+          break;
+        case "listusers":
+          response = "> Listing users...";
+          break;
+        case "adduser":
+          response = "> User added!";
+          break;
+        case "removeuser":
+          response = "> User removed!";
+          break;
+        case "addblock":
+          response = "> Block added!";
+          break;
+        case "removeblock":
+          response = "> Block removed!";
+          break;
+        case "blockstatus":
+          response = "> Block status: Active";
+          break;
+        case "listblocks":
+          response = "> Listing blocks...";
+          break;
+        case "grantaccess":
+          response = "> Access granted!";
+          break;
+        case "revokeaccess":
+          response = "> Access revoked!";
+          break;
+        case "killprocess":
+          response = "> Process terminated!";
+          break;
+        case "startprocess":
+          response = "> Process started!";
+          break;
+        case "stopprocess":
+          response = "> Process stopped!";
+          break;
+        case "launchapp":
+          response = "> App launched!";
+          break;
+        case "closeapp":
+          response = "> App closed!";
+          break;
+        case "addfile":
+          response = "> File added!";
+          break;
+        case "removefile":
+          response = "> File removed!";
+          break;
+        case "listfiles":
+          response = "> Listing files...";
+          break;
+      }
+
+      output.textContent += `\n> ${command}\n${response}`;
     }
   </script>
 </body>
 </html>
-"""
-
-# Save to file so user can download it
-file_path = "/mnt/data/AdminPanel_Combined.html"
-with open(file_path, "w") as f:
-    f.write(html_code)
-file_path
