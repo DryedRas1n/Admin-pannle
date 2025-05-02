@@ -235,67 +235,48 @@
       terminate:   () => { document.body.innerHTML = "<pre style='color:white;font-size:2em;'>TERMINATION COMPLETE</pre>"; },
       date:        () => `> ${new Date().toLocaleString()}`,
       showtime:    () => `> ${new Date().toLocaleTimeString()}`,
-      joke:        () => "> Why do programmers prefer dark mode? Because light attracts bugs.",
-      info:        () => "> Admin Panel v2.0 – fully featured.",
-      help:        () => "> " + Object.keys(commands).join(", "),
-      clearlist:   () => { document.getElementById("todoList").innerHTML = ""; return "> To-Do cleared."; },
-      about:       () => "> Custom admin panel with 50+ commands!",
-      ping:        () => "> Pong! Latency: 42ms",
-      echo:        () => "> " + lastArg(),
-      credits:     () => "> Built by Dryedras1n & AI",
-      status:      () => "> All systems operational.",
-      reload:      () => { location.reload(); return "> Reloading…"; },
-      reset:       () => "> Settings reset (simulated).",
-      restart:     () => { location.reload(); return "> Restarting…"; },
-      shutdownall: () => "> All systems shutting down.",
-      debug:       () => "> Debug info: none.",
-      version:     () => "> Version 2.0.0",
-      contact:     () => "> Contact: dev@example.com",
-      weather:     () => "> Weather: Sunny 25°C.",
-      banlog:      () => "> Ban log cleared.",
-      logs:        () => "> Fetching logs…",
-      blockstatus: () => "> Block status: Active",
-      listusers:   () => "> Users: admin, user1, user2",
-      adduser:     () => "> User added.",
-      removeuser:  () => "> User removed.",
-      listfiles:   () => "> Files: config.json, data.db",
-      addfile:     () => "> File created.",
-      removefile:  () => "> File deleted.",
-      fetchdata:   () => "> Data fetched.",
-      updatedb:    () => "> Database updated.",
-      loadconfig:  () => "> Config loaded.",
-      saveconfig:  () => "> Config saved.",
-      simulate:    () => "> Simulation complete.",
-      lockdown:    () => "> System in lockdown mode.",
-      unlock:      () => "> Unlock sequence initiated.",
-      hackmode:    () => "> Hacker mode enabled (visual only)."
+      joke:        () => "> Why do programmers prefer dark mode? Because light attracts bugs!",
+      help:        () => {
+        let msg = "> Available commands:";
+        for (let cmd in commands) msg += `\n  ${cmd}`;
+        return msg;
+      },
+      unknown:     () => "> Command not recognized. Type 'help' for list.",
+      
+      // New Commands
+      hack:        () => "> Initiating simulated hack... Complete! Data breach successful.",
+      unlock:      () => "> Unlocking system... Welcome to the hidden area!",
+      users:       () => "> Displaying list of current users... [User1, User2, Admin]",
+      adduser:     () => "> User added to the system.",
+      deleteuser:  () => "> User deleted from the system.",
+      clearcache:  () => "> Cache cleared successfully.",
+      restart:     () => "> System restart initiated...",
+      reload:      () => "> Page reloaded.",
+      deploy:      () => "> Deploying code to production...",
+      backup:      () => "> System backup started...",
+      virus:       () => "> Virus detected! Deploying countermeasures...",
+      recover:     () => "> Recovery mode activated.",
+      disable:     () => "> System disabled.",
+      enable:      () => "> System enabled.",
+      test:        () => "> Testing system integrity... PASS",
+      reboot:      () => "> Rebooting system...",
+      ping:        () => "> Pinging server... Successful.",
+      testmode:    () => "> Entering test mode... Running diagnostics.",
+      debug:       () => "> Debugging system... Found errors.",
+      update:      () => "> Updating system... Completed.",
+      reset:       () => "> Resetting system configurations.",
+      lock:        () => "> System locked.",
+      unlockdev:   () => "> Dev Mode unlocked.",
+      execute:     () => "> Executing operation...",
+      clear:       () => "> System cleared.",
+      deploynew:   () => "> Deploying new features...",
     };
 
-    function lastArg() {
-      return document.getElementById("terminalInput").value.trim().split(" ").slice(1).join(" ");
-    }
-    function disableAll() {
-      document.querySelectorAll("button,input").forEach(el => el.disabled = true);
-    }
     function runCommand() {
-      const inp = document.getElementById("terminalInput"),
-            out = document.getElementById("terminalOutput"),
-            cmd = inp.value.trim().toLowerCase();
-      inp.value = "";
-      if (!isPasswordCorrect && cmd !== "help" && cmd !== "password") {
-        out.textContent += `\n> ${cmd}\n> Please login first!`;
-        return;
-      }
-      if (cmd === "password") { askPassword(); return; }
-      if (cmd === "clear") { out.textContent = "> Ready for commands"; return; }
-      reqCount++;
-      if (commands[cmd]) {
-        const res = commands[cmd]();
-        if (res) out.textContent += `\n> ${cmd}\n${res}`;
-      } else {
-        out.textContent += `\n> ${cmd}\n> Unknown command`;
-      }
-      out.scrollTop = out.scrollHeight;
+      const cmd = document.getElementById("terminalInput").value.trim().toLowerCase();
+      const result = commands[cmd] ? commands[cmd]() : commands.unknown();
+      document.getElementById("terminalOutput").textContent += `\n> ${cmd}\n${result}`;
+      document.getElementById("terminalInput").value = "";
     }
   </script>
 </body>
