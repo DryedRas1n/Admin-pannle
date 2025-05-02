@@ -1,65 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Panel</title>
   <style>
     :root {
-      --bg: #f0f2f5; --text: #000; --card: #fff;
-      --sidebar: #222; --header: #333;
+      --bg:#f0f2f5; --text:#000; --card:#fff;
+      --sidebar:#222; --header:#333;
     }
     .dark {
-      --bg: #181818; --text: #f0f0f0; --card: #2a2a2a;
-      --sidebar: #111; --header: #000;
+      --bg:#181818; --text:#f0f0f0; --card:#2a2a2a;
+      --sidebar:#111; --header:#000;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body {
-      font-family:Arial,sans-serif; background:var(--bg);
-      color:var(--text); transition:0.3s;
-    }
-    header {
-      background:var(--header); color:var(--text);
-      padding:1rem; text-align:center;
-    }
-    #sidebar {
-      position:fixed; top:60px; left:0;
-      width:200px; height:calc(100% - 60px);
-      background:var(--sidebar); color:#fff;
-      padding-top:1rem;
-    }
-    #sidebar button {
-      width:100%; background:none; border:none;
-      color:#fff; padding:.8rem 1rem; text-align:left;
-      cursor:pointer;
-    }
-    #sidebar button:hover { background:#444; }
-    main {
-      margin-left:200px; padding:2rem;
-    }
-    .card {
-      background:var(--card); padding:1rem;
-      margin-bottom:1rem; border-radius:8px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1);
-    }
-    textarea,input,iframe {
-      width:100%; padding:.5rem; margin-top:.5rem;
-    }
-    input { background:#fff; color:#000; border:1px solid #ccc; }
-    iframe { height:300px; border:none; }
-    ul { list-style:none; padding:0; }
-    li { margin:.3rem 0; cursor:pointer; }
-    li:hover { text-decoration:line-through; }
-    .hidden { display:none; }
-    #terminalOutput {
-      background:#111; color:#0f0;
-      padding:1rem; min-height:150px;
-      white-space:pre-wrap; word-wrap:break-word;
-    }
-    #terminalInput {
-      width:100%; padding:.5rem;
-      background:#222; color:#0f0; border:none;
-    }
-    #terminalInput:focus { outline:none; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);transition:.3s}
+    header{background:var(--header);color:var(--text);padding:1rem;text-align:center}
+    #sidebar{position:fixed;top:60px;left:0;width:200px;height:calc(100% - 60px);
+      background:var(--sidebar);color:#fff;padding-top:1rem}
+    #sidebar button{width:100%;background:none;border:none;color:#fff;
+      padding:.8rem 1rem;text-align:left;cursor:pointer}
+    #sidebar button:hover{background:#444}
+    main{margin-left:200px;padding:2rem}
+    .card{background:var(--card);padding:1rem;margin-bottom:1rem;
+      border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+    textarea,input,iframe{width:100%;padding:.5rem;margin-top:.5rem}
+    input{background:#fff;color:#000;border:1px solid #ccc}
+    iframe{height:300px;border:none}
+    ul{list-style:none;padding:0}
+    li{margin:.3rem 0;cursor:pointer}
+    li:hover{text-decoration:line-through}
+    .hidden{display:none}
+    #terminalOutput{background:#111;color:#0f0;padding:1rem;
+      min-height:150px;white-space:pre-wrap;word-wrap:break-word}
+    #terminalInput{width:100%;padding:.5rem;background:#222;color:#0f0;border:none}
+    #terminalInput:focus{outline:none}
+    #devLog{background:#222;color:#0f0;padding:1rem;height:200px;
+      overflow:auto;white-space:pre-wrap;word-wrap:break-word;margin-top:.5rem}
   </style>
 </head>
 <body>
@@ -78,11 +54,13 @@
 
   <main>
     <section id="dashboard" class="tab card">
-      <h2>Welcome!</h2><p>Use the sidebar to navigate.</p>
+      <h2>Welcome!</h2>
+      <p>Use the sidebar to navigate.</p>
     </section>
 
     <section id="notes" class="tab card hidden">
-      <h2>📝 Notes</h2><textarea placeholder="Write notes..."></textarea>
+      <h2>📝 Notes</h2>
+      <textarea placeholder="Write notes..."></textarea>
     </section>
 
     <section id="todo" class="tab card hidden">
@@ -99,10 +77,11 @@
 
     <section id="dev" class="tab card hidden">
       <h2>🧪 Dev Mode Tools</h2>
-      <!-- Example dev mode contents: -->
-      <button onclick="alert('Dev Tool 1')">Run Dev Tool 1</button>
-      <button onclick="alert('Dev Tool 2')">Run Dev Tool 2</button>
-      <p>More tools or easter eggs can go here.</p>
+      <button onclick="logState()">Log State</button>
+      <button onclick="generateError()">Generate Error</button>
+      <button onclick="toggleFeature()">Toggle Feature Flag</button>
+      <button onclick="clearDevLog()">Clear Dev Log</button>
+      <div id="devLog">-- Dev Log --</div>
     </section>
 
     <section id="hack" class="tab card hidden">
@@ -113,12 +92,41 @@
   </main>
 
   <script>
-    let isPasswordCorrect = false;
+    let isPasswordCorrect = false,
+        featureEnabled = false;
 
-    // 50+ commands
+    // Dev Mode Log
+    function log(message) {
+      const el = document.getElementById("devLog");
+      el.textContent += "\n" + message;
+      el.scrollTop = el.scrollHeight;
+    }
+    function clearDevLog() {
+      document.getElementById("devLog").textContent = "-- Dev Log --";
+    }
+    function logState() {
+      log("State: { isPasswordCorrect: " 
+        + isPasswordCorrect 
+        + ", featureEnabled: " 
+        + featureEnabled 
+        + " }");
+    }
+    function generateError() {
+      try {
+        throw new Error("This is a simulated error");
+      } catch(e) {
+        log("Error caught: " + e.message);
+      }
+    }
+    function toggleFeature() {
+      featureEnabled = !featureEnabled;
+      log("Feature flag is now: " + (featureEnabled ? "ENABLED":"DISABLED"));
+    }
+
+    // Terminal commands (50+)
     const commands = {
       hello:       () => "> Hello, admin!",
-      ban:         () => "> User banned (simulated).",
+      ban:         () => "> User banned (sim).",
       unban:       () => "> User unbanned.",
       banall:      () => "> All users banned.",
       banuser:     () => "> Specific user banned.",
@@ -131,13 +139,13 @@
       info:        () => "> Admin Panel v2.0 – fully featured.",
       help:        () => "> " + Object.keys(commands).join(", "),
       clearlist:   () => { document.getElementById("todoList").innerHTML=""; return "> To-Do cleared."; },
-      about:       () => "> Custom admin interface with 50+ commands!",
+      about:       () => "> Custom interface with 50+ commands!",
       ping:        () => "> Pong! Latency: 42ms",
       echo:        () => `> ${lastArg()}`,
       credits:     () => "> Built by Dryedras1n & AI",
       status:      () => "> All systems operational.",
       reload:      () => { location.reload(); return "> Reloading…"; },
-      reset:       () => "> Settings reset (simulated).",
+      reset:       () => "> Settings reset (sim).",
       restart:     () => { location.reload(); return "> Restarting…"; },
       shutdownall: () => "> All systems shutting down.",
       debug:       () => "> Debug info: none.",
@@ -159,60 +167,65 @@
       saveconfig:  () => "> Config saved.",
       simulate:    () => "> Simulation complete.",
       lockdown:    () => "> System in lockdown mode.",
-      unlock:      () => "> Unlock sequence initiated.",
-      hackmode:    () => "> Hacker mode enabled (visual only)."
+      unlock:      () => "> Unlock seq initiated.",
+      hackmode:    () => "> Hacker mode (visual only)."
     };
 
     function lastArg() {
-      return document.getElementById("terminalInput").value.trim().split(" ").slice(1).join(" ");
+      return document.getElementById("terminalInput")
+        .value.trim().split(" ").slice(1).join(" ");
     }
     function disableAll() {
-      document.querySelectorAll("button,input").forEach(el => el.disabled=true);
+      document.querySelectorAll("button,input")
+        .forEach(el=>el.disabled=true);
+    }
+    function clearTerminal() {
+      document.getElementById("terminalOutput")
+        .textContent="> Ready for commands";
     }
 
     function toggleDark() {
       document.body.classList.toggle("dark");
     }
     function askPassword() {
-      const pw = prompt("Enter Admin Password:");
-      if (pw === "admin123") {
-        isPasswordCorrect = true;
+      const pw=prompt("Enter Admin Password:");
+      if(pw==="admin123") {
+        isPasswordCorrect=true;
         document.getElementById("loginBtn").classList.add("hidden");
         document.getElementById("devBtn").classList.remove("hidden");
         document.getElementById("hackBtn").classList.remove("hidden");
+        log("Password correct, dev & terminal unlocked.");
         alert("Access granted!");
-      } else {
-        alert("Incorrect password.");
-      }
+      } else alert("Incorrect password.");
     }
     function showTab(id) {
-      document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+      document.querySelectorAll(".tab")
+        .forEach(t=>t.classList.add("hidden"));
       document.getElementById(id).classList.remove("hidden");
     }
     function addTask() {
-      const i=document.getElementById("todoInput"), ul=document.getElementById("todoList");
-      if(!i.value.trim()) return;
+      const i=document.getElementById("todoInput"),
+            ul=document.getElementById("todoList");
+      if(!i.value.trim())return;
       const li=document.createElement("li"); li.textContent=i.value;
       li.onclick=()=>li.remove();
       ul.appendChild(li); i.value="";
     }
     function embedURL() {
       const u=document.getElementById("embedURL").value;
-      document.getElementById("embedArea").innerHTML=`<iframe src="${u}" allowfullscreen></iframe>`;
+      document.getElementById("embedArea")
+        .innerHTML=`<iframe src="${u}" allowfullscreen></iframe>`;
     }
     function runCommand() {
       const inp=document.getElementById("terminalInput"),
             out=document.getElementById("terminalOutput"),
             cmd=inp.value.trim().toLowerCase();
       inp.value="";
-
       if(!isPasswordCorrect && cmd!=="help" && cmd!=="password") {
-        out.textContent+=`\n> ${cmd}\n> Please login first!`;
-        return;
+        out.textContent+=`\n> ${cmd}\n> Please login first!`; return;
       }
       if(cmd==="password") { askPassword(); return; }
-      if(cmd==="clear") { out.textContent="> Ready for commands"; return; }
-
+      if(cmd==="clear") { clearTerminal(); return; }
       if(commands[cmd]) {
         const res=commands[cmd]();
         if(res) out.textContent+=`\n> ${cmd}\n${res}`;
