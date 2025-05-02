@@ -6,6 +6,212 @@
   <style>
     :root {
       --bg:#f0f2f5; --text:#000; --card:#fff;
+      --sidebar:#222; --header:#333; --accent:#007acc;
+    }
+    .dark {
+      --bg:#181818; --text:#f0f0f0; --card:#2a2a2a;
+      --sidebar:#111; --header:#000; --accent:#3399ff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);transition:.3s}
+    header{background:var(--header);color:var(--text);padding:1rem;text-align:center}
+    #sidebar{position:fixed;top:60px;left:0;width:200px;height:calc(100% - 60px);
+      background:var(--sidebar);color:#fff;padding-top:1rem}
+    #sidebar button{width:100%;background:none;border:none;color:#fff;
+      padding:.8rem 1rem;text-align:left;cursor:pointer}
+    #sidebar button:hover{background:#444}
+    main{margin-left:200px;padding:2rem}
+    .card{background:var(--card);padding:1rem;margin-bottom:1rem;
+      border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+    .hidden{display:none}
+    #dev { padding:1rem; background:var(--card); border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    #dev .dev-header { display:flex; justify-content:space-between; align-items:center; }
+    #dev .dev-header h2 { margin:0; color:var(--accent); }
+    #dev .toggles, #dev .actions, #dev .metrics { margin-top:1rem; }
+    #dev label { display:flex; align-items:center; margin-bottom:.5rem; }
+    #dev label input { margin-right:.5rem; }
+    #dev .metrics div { margin-bottom:.5rem; }
+    #devLog { background:#222;color:#0f0;padding:1rem;height:150px;
+      overflow:auto;white-space:pre-wrap; border-radius:4px; margin-top:1rem; }
+    textarea,input,iframe { width:100%; padding:.5rem; margin-top:.5rem; }
+    input{background:#fff;color:#000;border:1px solid #ccc}
+    iframe{height:300px;border:none}
+    ul{list-style:none;padding:0}
+    li{margin:.3rem 0;cursor:pointer}
+    li:hover{text-decoration:line-through}
+    #terminalOutput{background:#111;color:#0f0;padding:1rem;
+      min-height:150px;white-space:pre-wrap;word-wrap:break-word;margin-bottom:.5rem}
+    #terminalInput{width:100%;padding:.5rem;background:#222;color:#0f0;border:none}
+    #terminalInput:focus{outline:none}
+  </style>
+</head>
+<body>
+  <header><h1>Admin Panel Dashboard</h1></header>
+
+  <div id="sidebar">
+    <button onclick="showTab('dashboard')">🏠 Dashboard</button>
+    <button onclick="showTab('notes')">📝 Notes</button>
+    <button onclick="showTab('todo')">📋 To-Do</button>
+    <button onclick="showTab('embed')">📎 Embed</button>
+    <button onclick="toggleDark()">🌓 Dark Mode</button>
+    <button id="loginBtn" onclick="askPassword()">🔑 Login</button>
+    <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
+    <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
+  </div>
+
+  <main>
+    <section id="dashboard" class="tab card">
+      <h2>Welcome!</h2><p>Use the sidebar to navigate.</p>
+    </section>
+
+    <section id="notes" class="tab card hidden">
+      <h2>📝 Notes</h2><textarea placeholder="Write notes..."></textarea>
+    </section>
+
+    <section id="todo" class="tab card hidden">
+      <h2>📋 To-Do</h2>
+      <input id="todoInput" placeholder="New task…"><button onclick="addTask()">Add</button>
+      <ul id="todoList"></ul>
+    </section>
+
+    <section id="embed" class="tab card hidden">
+      <h2>📎 Embed</h2>
+      <input id="embedURL" placeholder="YouTube/Docs URL…"><button onclick="embedURL()">Embed</button>
+      <div id="embedArea"></div>
+    </section>
+
+    <section id="dev" class="tab hidden">
+      <div id="dev" >
+        <div class="dev-header">
+          <h2>Dev Mode Tools</h2>
+          <span>Feature Flag: <strong id="featureFlag">OFF</strong></span>
+        </div>
+        <div class="toggles">
+          <label><input type="checkbox" id="toggleA" onchange="devTool('Toggle A '+this.checked)"> Toggle A</label>
+          <label><input type="checkbox" id="toggleB" onchange="devTool('Toggle B '+this.checked)"> Toggle B</label>
+        </div>
+        <div class="actions">
+          <button onclick="logState()">Log State</button>
+          <button onclick="generateError()">Generate Error</button>
+          <button onclick="toggleFutureFlag()">Toggle Future Flag</button>
+          <button onclick="devTool('Dev Tool 1 executed')">Dev Tool 1</button>
+          <button onclick="devTool('Dev Tool 2 executed')">Dev Tool 2</button>
+          <button onclick="clearDevLog()">Clear Dev Log</button>
+        </div>
+        <div class="metrics">
+          <div>🚀 Uptime: <span id="uptime">0s</span></div>
+          <div>📈 Requests: <span id="requests">0</span></div>
+          <div>🧩 Errors: <span id="errors">0</span></div>
+        </div>
+        <div>
+          <label>📁 Upload File: <input type="file" id="fileInput" onchange="handleFile()"></label>
+        </div>
+        <div id="devLog">-- Dev Log --</div>
+      </div>
+    </section>
+
+    <section id="hack" class="tab card hidden">
+      <h2>👾 Terminal</h2>
+      <div id="terminalOutput">&gt; Type "help" for commands</div>
+      <input id="terminalInput" placeholder="Enter command…" onkeydown="if(event.key==='Enter') runCommand()">
+    </section>
+  </main>
+
+  <script>
+    let isPasswordCorrect=false, futureFlag=false;
+    let reqCount=0, errCount=0, startTime=Date.now();
+
+    // Dev log
+    function devTool(msg){
+      errCount += msg.startsWith("Generate")? 1:0;
+      const logEl = document.getElementById("devLog");
+      logEl.textContent += "\n" + msg;
+      logEl.scrollTop = logEl.scrollHeight;
+      updateMetrics();
+    }
+    function clearDevLog(){ document.getElementById("devLog").textContent="-- Dev Log --"; }
+    function logState(){
+      devTool(`State => pwOK:${isPasswordCorrect}, futureFlag:${futureFlag}`);
+    }
+    function generateError(){
+      try{ throw new Error("Simulated error"); }
+      catch(e){ errCount++; devTool("Error: "+e.message); }
+    }
+    function toggleFutureFlag(){
+      futureFlag = !futureFlag;
+      document.getElementById("featureFlag").textContent = futureFlag?"ON":"OFF";
+      devTool("Future Flag toggled to "+futureFlag);
+    }
+    function handleFile(){
+      const f = document.getElementById("fileInput").files[0];
+      devTool("File selected: "+(f?f.name:"none"));
+    }
+    function updateMetrics(){
+      document.getElementById("uptime").textContent = Math.floor((Date.now()-startTime)/1000)+"s";
+      document.getElementById("requests").textContent = reqCount;
+      document.getElementById("errors").textContent = errCount;
+    }
+    setInterval(updateMetrics,1000);
+
+    // Terminal commands
+    const commands = { /* as before... 50+ commands here */ };
+    function lastArg(){ return document.getElementById("terminalInput").value.trim().split(" ").slice(1).join(" "); }
+    function disableAll(){ document.querySelectorAll("button,input").forEach(el=>el.disabled=true); }
+    function clearTerminal(){ document.getElementById("terminalOutput").textContent="> Ready for commands"; }
+
+    function toggleDark(){ document.body.classList.toggle("dark"); }
+    function askPassword(){
+      const pw=prompt("Password:");
+      if(pw==="admin123"){
+        isPasswordCorrect=true;
+        document.getElementById("loginBtn").classList.add("hidden");
+        document.getElementById("devBtn").classList.remove("hidden");
+        document.getElementById("hackBtn").classList.remove("hidden");
+        devTool("Logged in, Dev & Terminal unlocked.");
+        alert("Access granted!");
+      }else alert("Wrong password.");
+    }
+    function showTab(id){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+    }
+    function addTask(){
+      const i=document.getElementById("todoInput"), ul=document.getElementById("todoList");
+      if(!i.value.trim())return;
+      const li=document.createElement("li");li.textContent=i.value;
+      li.onclick=()=>li.remove(); ul.appendChild(li); i.value="";
+    }
+    function embedURL(){
+      const u=document.getElementById("embedURL").value;
+      document.getElementById("embedArea").innerHTML=`<iframe src="${u}" allowfullscreen></iframe>`;
+    }
+    function runCommand(){
+      const inp=document.getElementById("terminalInput"),
+            out=document.getElementById("terminalOutput"),
+            cmd=inp.value.trim().toLowerCase();
+      inp.value="";
+      if(!isPasswordCorrect && cmd!=="help" && cmd!=="password"){
+        out.textContent+=`\n> ${cmd}\n> Please login!`; return;
+      }
+      if(cmd==="password"){ askPassword(); return; }
+      if(cmd==="clear"){ clearTerminal(); return; }
+      reqCount++;
+      if(commands[cmd]){
+        const res=commands[cmd](); if(res) out.textContent+=`\n> ${cmd}\n${res}`;
+      } else out.textContent+=`\n> ${cmd}\n> Unknown command`;
+      out.scrollTop=out.scrollHeight;
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Panel</title>
+  <style>
+    :root {
+      --bg:#f0f2f5; --text:#000; --card:#fff;
       --sidebar:#222; --header:#333;
       --accent: #007acc;
     }
