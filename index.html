@@ -12,20 +12,20 @@
       --bg: #181818; --text: #f0f0f0; --card: #2a2a2a;
       --sidebar: #111; --header: #000; --accent: #3399ff;
     }
-    * { box-sizing: border-box; margin:0; padding:0 }
+    * { box-sizing:border-box; margin:0; padding:0 }
     body {
-      font-family: Arial, sans-serif;
-      background: var(--bg); color: var(--text);
-      transition: .3s;
+      font-family:Arial,sans-serif;
+      background:var(--bg); color:var(--text);
+      transition:.3s;
     }
     header {
-      background: var(--header); color: var(--text);
-      padding: 1rem; text-align: center;
+      background:var(--header); color:var(--text);
+      padding:1rem; text-align:center;
     }
     #sidebar {
-      position: fixed; top:60px; left:0;
+      position:fixed; top:60px; left:0;
       width:200px; height:calc(100% - 60px);
-      background: var(--sidebar); color:#fff;
+      background:var(--sidebar); color:#fff;
       padding-top:1rem;
     }
     #sidebar button {
@@ -35,47 +35,40 @@
     }
     #sidebar button:hover { background:#444 }
     main { margin-left:200px; padding:2rem }
-
     .card {
-      background: var(--card); padding:1rem;
-      margin-bottom:1rem; border-radius:8px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1);
+      background:var(--card); padding:1rem; margin-bottom:1rem;
+      border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);
     }
-    .hidden { display: none }
-
-    textarea, input, iframe {
+    .hidden { display:none }
+    textarea,input,iframe {
       width:100%; padding:.5rem; margin-top:.5rem;
     }
     input { background:#fff; color:#000; border:1px solid #ccc }
     iframe { height:300px; border:none }
     ul { list-style:none; padding:0 }
     li { margin:.3rem 0; cursor:pointer }
-    li:hover { text-decoration: line-through }
-
+    li:hover { text-decoration:line-through }
     /* Dev Mode */
-    #dev .dev-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 1rem;
+    #devPanel .dev-header {
+      display:flex; justify-content:space-between; align-items:center;
     }
-    #dev .dev-header h2 { margin: 0; color: var(--accent); }
-    #dev .dev-section { margin-bottom: 1.5rem; }
-    #dev label { display: block; margin-bottom: .5rem; }
-    #dev input[type="color"] { width: 50px; height: 30px; padding: 0; }
+    #devPanel .dev-header h2 { margin:0; color:var(--accent) }
+    #devPanel .dev-actions button {
+      margin-right:.5rem; margin-bottom:.5rem;
+    }
+    #devPanel .metrics div { margin-bottom:.5rem }
     #devLog {
-      background: #222; color: #0f0; padding: 1rem;
-      height: 120px; overflow: auto; white-space: pre-wrap;
-      border-radius: 4px; margin-top: .5rem;
+      background:#222;color:#0f0;padding:1rem;height:150px;
+      overflow:auto;white-space:pre-wrap;border-radius:4px;margin-top:.5rem;
     }
-
     /* Terminal */
     #terminalOutput {
-      background: #111; color: #0f0; padding:1rem;
-      min-height:150px; white-space:pre-wrap; word-wrap:break-word;
+      background:#111;color:#0f0;padding:1rem;
+      min-height:150px;white-space:pre-wrap;word-wrap:break-word;
       margin-bottom:.5rem;
     }
     #terminalInput {
-      width:100%; padding:.5rem; background:#222;
-      color:#0f0; border:none;
+      width:100%;padding:.5rem;background:#222;color:#0f0;border:none;
     }
     #terminalInput:focus { outline:none }
   </style>
@@ -90,21 +83,17 @@
     <button onclick="showTab('embed')">📎 Embed</button>
     <button onclick="toggleDark()">🌓 Dark Mode</button>
     <button id="loginBtn" onclick="askPassword()">🔑 Login</button>
-    <button id="devBtn" class="hidden" onclick="showTab('dev')">🧪 Dev Mode</button>
+    <button id="devBtn" class="hidden" onclick="showTab('devPanel')">🧪 Dev Mode</button>
     <button id="hackBtn" class="hidden" onclick="showTab('hack')">👾 Terminal</button>
   </div>
 
   <main>
     <section id="dashboard" class="tab card">
-      <div id="dashboardContent">
-        <h2>Welcome!</h2>
-        <p>Use the sidebar to navigate.</p>
-      </div>
+      <h2>Welcome!</h2><p>Use the sidebar to navigate.</p>
     </section>
 
     <section id="notes" class="tab card hidden">
-      <h2>📝 Notes</h2>
-      <textarea placeholder="Write notes..."></textarea>
+      <h2>📝 Notes</h2><textarea placeholder="Write notes..."></textarea>
     </section>
 
     <section id="todo" class="tab card hidden">
@@ -119,222 +108,176 @@
       <div id="embedArea"></div>
     </section>
 
-    <section id="dev" class="tab card hidden">
+    <section id="devPanel" class="tab card hidden">
       <div class="dev-header">
         <h2>🧪 Dev Mode</h2>
         <span>Future Flag: <strong id="futureFlag">OFF</strong></span>
       </div>
-
-      <!-- Edit App Title -->
-      <div class="dev-section">
-        <label>App Title:
-          <input type="text" id="titleInput" value="Admin Panel Dashboard">
-        </label>
-      </div>
-
-      <!-- Edit Dashboard Content -->
-      <div class="dev-section">
-        <label>Dashboard HTML:</label>
-        <textarea id="dashboardInput" rows="4">
-<h2>Welcome!</h2>
-<p>Use the sidebar to navigate.</p>
-        </textarea>
-      </div>
-
-      <!-- Accent Color Picker -->
-      <div class="dev-section">
-        <label>Accent Color:
-          <input type="color" id="accentInput" value="#007acc">
-        </label>
-      </div>
-
-      <!-- Dev Actions -->
       <div class="dev-actions">
-        <button onclick="applyDevChanges()">Apply Changes</button>
-        <button onclick="resetDevChanges()">Reset Defaults</button>
+        <button onclick="logState()">Log State</button>
+        <button onclick="generateError()">Generate Error</button>
+        <button onclick="toggleFutureFlag()">Toggle Future Flag</button>
         <button onclick="clearDevLog()">Clear Dev Log</button>
       </div>
-
       <div class="metrics">
         <div>🚀 Uptime: <span id="uptime">0s</span></div>
         <div>📈 Requests: <span id="requests">0</span></div>
         <div>🧩 Errors: <span id="errors">0</span></div>
       </div>
-
       <div id="devLog">-- Dev Log --</div>
     </section>
 
     <section id="hack" class="tab card hidden">
       <h2>👾 Terminal</h2>
       <div id="terminalOutput">&gt; Type “help” for commands</div>
-      <input id="terminalInput" placeholder="Enter command…" onkeydown="if(event.key==='Enter') runCommand()">
+      <input id="terminalInput" placeholder="Enter command…" onkeydown="if(event.key==='Enter')runCommand()">
     </section>
   </main>
 
   <script>
-    // State
-    let isPasswordCorrect = false,
-        futureFlag = false,
-        reqCount = 0,
-        errCount = 0,
-        startTime = Date.now();
+    let isPasswordCorrect=false,
+        futureFlag=false,
+        reqCount=0,
+        errCount=0,
+        startTime=Date.now();
 
-    // Log helper
-    function log(msg) {
-      const el = document.getElementById("devLog");
+    // Dev Mode functions
+    function log(msg){
+      const el=document.getElementById("devLog");
       el.textContent += "\n" + msg;
       el.scrollTop = el.scrollHeight;
     }
-    function clearDevLog() { document.getElementById("devLog").textContent = "-- Dev Log --"; }
-
-    // Uptime & errors
-    function updateMetrics() {
-      document.getElementById("uptime").textContent = Math.floor((Date.now() - startTime)/1000) + "s";
-      document.getElementById("errors").textContent = errCount;
+    function clearDevLog(){
+      document.getElementById("devLog").textContent="-- Dev Log --";
+    }
+    function logState(){
+      log(`State → passwordOK:${isPasswordCorrect}, futureFlag:${futureFlag}`);
+    }
+    function generateError(){
+      try{ throw new Error("Simulated error"); }
+      catch(e){
+        errCount++;
+        log("Error: "+e.message);
+        updateMetrics();
+      }
+    }
+    function toggleFutureFlag(){
+      futureFlag=!futureFlag;
+      document.getElementById("futureFlag").textContent = futureFlag?"ON":"OFF";
+      log("Future Flag set to "+futureFlag);
+    }
+    function updateMetrics(){
+      document.getElementById("uptime").textContent = Math.floor((Date.now()-startTime)/1000)+"s";
       document.getElementById("requests").textContent = reqCount;
+      document.getElementById("errors").textContent = errCount;
     }
-    setInterval(updateMetrics, 1000);
-
-    // Dev Mode: Apply / Reset
-    const defaultTitle = "Admin Panel Dashboard";
-    const defaultDashboardHTML = `<h2>Welcome!</h2><p>Use the sidebar to navigate.</p>`;
-    const defaultAccent = "#007acc";
-
-    function applyDevChanges() {
-      // Title
-      const title = document.getElementById("titleInput").value;
-      document.getElementById("appHeader").innerHTML = `<h1>${title}</h1>`;
-      log("Title updated to: " + title);
-
-      // Dashboard content
-      const html = document.getElementById("dashboardInput").value;
-      document.getElementById("dashboardContent").innerHTML = html;
-      log("Dashboard HTML updated.");
-
-      // Accent color
-      const accent = document.getElementById("accentInput").value;
-      document.documentElement.style.setProperty("--accent", accent);
-      log("Accent color set to: " + accent);
-    }
-
-    function resetDevChanges() {
-      document.getElementById("titleInput").value = defaultTitle;
-      document.getElementById("dashboardInput").value = defaultDashboardHTML;
-      document.getElementById("accentInput").value = defaultAccent;
-      applyDevChanges();
-      log("Dev changes reset to defaults.");
-    }
+    setInterval(updateMetrics,1000);
 
     // Common UI
-    function toggleDark() {
+    function toggleDark(){
       document.body.classList.toggle("dark");
     }
-    function askPassword() {
-      const pw = prompt("Enter Admin Password:");
-      if (pw === "admin123") {
-        isPasswordCorrect = true;
+    function askPassword(){
+      const pw=prompt("Enter Admin Password:");
+      if(pw==="admin123"){
+        isPasswordCorrect=true;
         document.getElementById("loginBtn").classList.add("hidden");
         document.getElementById("devBtn").classList.remove("hidden");
         document.getElementById("hackBtn").classList.remove("hidden");
-        log("Login successful. Dev & Terminal unlocked.");
+        log("Login successful.");
         alert("Access granted!");
-      } else {
-        alert("Incorrect password.");
-      }
+      } else alert("Incorrect password.");
     }
-    function showTab(id) {
-      document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
+    function showTab(id){
+      document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
       document.getElementById(id).classList.remove("hidden");
     }
-    function addTask() {
-      const i = document.getElementById("todoInput"), ul = document.getElementById("todoList");
-      if (!i.value.trim()) return;
-      const li = document.createElement("li");
-      li.textContent = i.value;
-      li.onclick = () => li.remove();
-      ul.appendChild(li);
-      i.value = "";
+    function addTask(){
+      const i=document.getElementById("todoInput"), ul=document.getElementById("todoList");
+      if(!i.value.trim()) return;
+      const li=document.createElement("li"); li.textContent=i.value;
+      li.onclick=()=>li.remove();
+      ul.appendChild(li); i.value="";
     }
-    function embedURL() {
-      const url = document.getElementById("embedURL").value;
-      document.getElementById("embedArea").innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    function embedURL(){
+      const u=document.getElementById("embedURL").value;
+      document.getElementById("embedArea").innerHTML = `<iframe src="${u}" allowfullscreen></iframe>`;
     }
 
-    // Terminal Commands (50+)
+    // Terminal commands (50+)
     const commands = {
-      hello: () => "> Hello, admin!",
-      ban: () => "> User banned.",
-      unban: () => "> User unbanned.",
-      banall: () => "> All users banned.",
-      banuser: () => "> Specific user banned.",
-      unbanuser: () => "> Specific user unbanned.",
-      shutdown: () => { disableAll(); return "> System shut down."; },
-      terminate: () => { document.body.innerHTML = "<pre style='color:white;font-size:2em;'>TERMINATION COMPLETE</pre>"; },
-      date: () => `> ${new Date().toLocaleString()}`,
-      showtime: () => `> ${new Date().toLocaleTimeString()}`,
-      joke: () => "> Why do programmers prefer dark mode? Because light attracts bugs.",
-      info: () => "> Admin Panel v2.0 – fully featured.",
-      help: () => "> " + Object.keys(commands).join(", "),
-      clearlist: () => { document.getElementById("todoList").innerHTML = ""; return "> To-Do cleared."; },
-      about: () => "> Custom admin panel with 50+ commands!",
-      ping: () => "> Pong! Latency: 42ms",
-      echo: () => "> " + lastArg(),
-      credits: () => "> Built by Dryedras1n & AI",
-      status: () => "> All systems operational.",
-      reload: () => { location.reload(); return "> Reloading…"; },
-      reset: () => "> Settings reset.",
-      restart: () => { location.reload(); return "> Restarting…"; },
-      shutdownall: () => "> All systems shutting down.",
-      debug: () => "> Debug info: none.",
-      version: () => "> Version 2.0.0",
-      contact: () => "> Contact: dev@example.com",
-      weather: () => "> Weather: Sunny 25°C.",
-      banlog: () => "> Ban log cleared.",
-      logs: () => "> Fetching logs…",
-      blockstatus: () => "> Block status: Active",
-      listusers: () => "> Users: admin, user1, user2",
-      adduser: () => "> User added.",
-      removeuser: () => "> User removed.",
-      listfiles: () => "> Files: config.json, data.db",
-      addfile: () => "> File created.",
-      removefile: () => "> File deleted.",
-      fetchdata: () => "> Data fetched.",
-      updatedb: () => "> Database updated.",
-      loadconfig: () => "> Config loaded.",
-      saveconfig: () => "> Config saved.",
-      simulate: () => "> Simulation complete.",
-      lockdown: () => "> System in lockdown mode.",
-      unlock: () => "> Unlock sequence initiated.",
-      hackmode: () => "> Hacker mode enabled."
+      hello: ()=>"> Hello, admin!",
+      ban: ()=>"> User banned.",
+      unban: ()=>"> User unbanned.",
+      banall: ()=>"> All users banned.",
+      banuser: ()=>"> Specific user banned.",
+      unbanuser: ()=>"> Specific user unbanned.",
+      shutdown: ()=>{ disableAll(); return "> System shut down."; },
+      terminate: ()=>{ document.body.innerHTML="<pre style='color:white;'>TERMINATION COMPLETE</pre>"; },
+      date: ()=>`> ${new Date().toLocaleString()}`,
+      showtime: ()=>`> ${new Date().toLocaleTimeString()}`,
+      joke: ()=>"> Why do programmers prefer dark mode? Because light attracts bugs.",
+      info: ()=>"> Admin Panel v2.0 – fully featured.",
+      help: ()=>"> "+Object.keys(commands).join(", "),
+      clearlist: ()=>{ document.getElementById("todoList").innerHTML=""; return "> To-Do cleared."; },
+      about: ()=>"> Custom admin panel with 50+ commands!",
+      ping: ()=>"> Pong! Latency: 42ms",
+      echo: ()=>"> "+lastArg(),
+      credits: ()=>"> Built by Dryedras1n & AI",
+      status: ()=>"> All systems operational.",
+      reload: ()=>{ location.reload(); return "> Reloading…"; },
+      reset: ()=>"> Settings reset (sim).",
+      restart: ()=>{ location.reload(); return "> Restarting…"; },
+      shutdownall: ()=>"> All systems shutting down.",
+      debug: ()=>"> Debug info: none.",
+      version: ()=>"> Version 2.0.0",
+      contact: ()=>"> Contact: dev@example.com",
+      weather: ()=>"> Weather: Sunny 25°C.",
+      banlog: ()=>"> Ban log cleared.",
+      logs: ()=>"> Fetching logs…",
+      blockstatus: ()=>"> Block status: Active",
+      listusers: ()=>"> Users: admin, user1, user2",
+      adduser: ()=>"> User added.",
+      removeuser: ()=>"> User removed.",
+      listfiles: ()=>"> Files: config.json, data.db",
+      addfile: ()=>"> File created.",
+      removefile: ()=>"> File deleted.",
+      fetchdata: ()=>"> Data fetched.",
+      updatedb: ()=>"> Database updated.",
+      loadconfig: ()=>"> Config loaded.",
+      saveconfig: ()=>"> Config saved.",
+      simulate: ()=>"> Simulation complete.",
+      lockdown: ()=>"> System in lockdown mode.",
+      unlock: ()=>"> Unlock sequence initiated.",
+      hackmode: ()=>"> Hacker mode enabled."
     };
 
-    let reqCount = 0;
-    function lastArg() {
+    let reqCount=0;
+    function lastArg(){
       return document.getElementById("terminalInput").value.trim().split(" ").slice(1).join(" ");
     }
-    function disableAll() {
-      document.querySelectorAll("button,input").forEach(el => el.disabled = true);
+    function disableAll(){
+      document.querySelectorAll("button,input").forEach(el=>el.disabled=true);
     }
 
-    function runCommand() {
-      const inp = document.getElementById("terminalInput"),
-            out = document.getElementById("terminalOutput"),
-            cmd = inp.value.trim().toLowerCase();
-      inp.value = "";
-      if (!isPasswordCorrect && cmd !== "help" && cmd !== "password") {
-        out.textContent += `\n> ${cmd}\n> Please login first!`;
-        return;
+    function runCommand(){
+      const inp=document.getElementById("terminalInput"),
+            out=document.getElementById("terminalOutput"),
+            cmd=inp.value.trim().toLowerCase();
+      inp.value="";
+      if(!isPasswordCorrect && cmd!=="help" && cmd!=="password"){
+        out.textContent+=`\n> ${cmd}\n> Please login first!`; return;
       }
-      if (cmd === "password") { askPassword(); return; }
-      if (cmd === "clear") { out.textContent = "> Ready for commands"; return; }
+      if(cmd==="password"){ askPassword(); return; }
+      if(cmd==="clear"){ out.textContent="> Ready for commands"; return; }
       reqCount++;
-      if (commands[cmd]) {
-        const res = commands[cmd]();
-        if (res) out.textContent += `\n> ${cmd}\n${res}`;
+      if(commands[cmd]){
+        const res=commands[cmd]();
+        if(res) out.textContent+=`\n> ${cmd}\n${res}`;
       } else {
-        out.textContent += `\n> ${cmd}\n> Unknown command`;
+        out.textContent+=`\n> ${cmd}\n> Unknown command`;
       }
-      out.scrollTop = out.scrollHeight;
+      out.scrollTop=out.scrollHeight;
     }
   </script>
 </body>
