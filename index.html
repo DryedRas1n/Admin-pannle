@@ -242,8 +242,6 @@
         return msg;
       },
       unknown:     () => "> Command not recognized. Type 'help' for list.",
-      
-      // New Commands
       hack:        () => "> Initiating simulated hack... Complete! Data breach successful.",
       unlock:      () => "> Unlocking system... Welcome to the hidden area!",
       users:       () => "> Displaying list of current users... [User1, User2, Admin]",
@@ -256,27 +254,16 @@
       backup:      () => "> System backup started...",
       virus:       () => "> Virus detected! Deploying countermeasures...",
       recover:     () => "> Recovery mode activated.",
-      disable:     () => "> System disabled.",
-      enable:      () => "> System enabled.",
-      test:        () => "> Testing system integrity... PASS",
-      reboot:      () => "> Rebooting system...",
-      ping:        () => "> Pinging server... Successful.",
-      testmode:    () => "> Entering test mode... Running diagnostics.",
-      debug:       () => "> Debugging system... Found errors.",
-      update:      () => "> Updating system... Completed.",
-      reset:       () => "> Resetting system configurations.",
-      lock:        () => "> System locked.",
-      unlockdev:   () => "> Dev Mode unlocked.",
-      execute:     () => "> Executing operation...",
-      clear:       () => "> System cleared.",
-      deploynew:   () => "> Deploying new features...",
+      disable:     () => "> Disabling dangerous operations...",
+      engage:      () => "> Engaging defense protocols...",
+      freeze:      () => "> Freezing user activity for 10 seconds..."
     };
-
     function runCommand() {
-      const cmd = document.getElementById("terminalInput").value.trim().toLowerCase();
-      const result = commands[cmd] ? commands[cmd]() : commands.unknown();
-      document.getElementById("terminalOutput").textContent += `\n> ${cmd}\n${result}`;
-      document.getElementById("terminalInput").value = "";
+      const input = document.getElementById("terminalInput").value;
+      const output = document.getElementById("terminalOutput");
+      const cmd = commands[input.trim().toLowerCase()] || commands.unknown;
+      output.textContent += "\n" + cmd();
+      document.getElementById("terminalInput").value = '';
     }
   </script>
 </body>
