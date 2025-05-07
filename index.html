@@ -34,9 +34,7 @@
       cursor:pointer;
     }
     #sidebar button:hover { background:#444; }
-    main {
-      margin-left:200px; padding:2rem;
-    }
+    main { margin-left:200px; padding:2rem; }
     .card {
       background: var(--card); padding:1rem;
       margin-bottom:1rem; border-radius:8px;
@@ -53,22 +51,6 @@
     li { margin:.3rem 0; cursor:pointer; }
     li:hover { text-decoration: line-through; }
 
-    /* Dev Mode */
-    #dev .dev-header {
-      display:flex; justify-content:space-between; align-items:center;
-    }
-    #dev .dev-header h2 { margin:0; color: var(--accent); }
-    #dev .dev-actions button {
-      margin-right:.5rem; margin-bottom:.5rem;
-    }
-    #dev .metrics div { margin-bottom:.5rem; }
-    #devLog {
-      background:#222; color:#0f0; padding:1rem;
-      height:150px; overflow:auto; white-space:pre-wrap;
-      border-radius:4px; margin-top:.5rem;
-    }
-
-    /* Terminal */
     #terminalOutput {
       background:#111; color:#0f0; padding:1rem;
       min-height:150px; white-space:pre-wrap; word-wrap:break-word;
@@ -111,158 +93,125 @@
       <ul id="todoList"></ul>
     </section>
 
-    <section id="embed" class="tab card hidden">
-      <h2>📎 Embed</h2>
-      <input id="embedURL" placeholder="YouTube/Docs URL…"><button onclick="embedURL()">Embed</button>
-      <div id="embedArea"></div>
-    </section>
-
-    <section id="dev" class="tab card hidden">
-      <div class="dev-header">
-        <h2>Dev Mode Tools</h2>
-        <span>Future Flag: <strong id="futureFlag">OFF</strong></span>
-      </div>
-      <div class="dev-actions">
-        <button onclick="logState()">Log State</button>
-        <button onclick="generateError()">Generate Error</button>
-        <button onclick="toggleFutureFlag()">Toggle Future Flag</button>
-        <button onclick="clearDevLog()">Clear Dev Log</button>
-      </div>
-      <div class="metrics">
-        <div>🚀 Uptime: <span id="uptime">0s</span></div>
-        <div>📈 Requests: <span id="requests">0</span></div>
-        <div>🧩 Errors: <span id="errors">0</span></div>
-      </div>
-      <div>
-        <label>📁 Upload File: <input type="file" onchange="handleFile()"></label>
-      </div>
-      <div id="devLog">-- Dev Log --</div>
-    </section>
-
     <section id="hack" class="tab card hidden">
       <h2>👾 Terminal</h2>
-      <div id="terminalOutput">&gt; Type “help” for commands</div>
-      <input id="terminalInput" placeholder="Enter command…" onkeydown="if(event.key==='Enter')runCommand()">
+      <div id="terminalOutput">> Welcome to the Terminal.</div>
+      <input id="terminalInput" placeholder="Enter command..." onkeydown="if(event.key==='Enter') runCommand()">
     </section>
   </main>
 
   <script>
-    // State
-    let isPasswordCorrect = false,
-        futureFlag = false,
-        reqCount = 0,
-        errCount = 0,
-        startTime = Date.now();
+    // Minimal placeholders
+    let startTime = Date.now(), reqCount = 0, errCount = 0, futureFlag = false;
+    function toggleDark() { document.body.classList.toggle("dark"); }
+    function askPassword() { alert("Login prompt simulated."); }
+    function generateError() { errCount++; }
+    function log(msg) { console.log(msg); }
+    function toggleFutureFlag() { futureFlag = !futureFlag; }
+    function updateMetrics() {}
 
-    // Dev Mode Functions
-    function log(msg) {
-      const el = document.getElementById("devLog");
-      el.textContent += "\n" + msg;
-      el.scrollTop = el.scrollHeight;
-    }
-    function clearDevLog() {
-      document.getElementById("devLog").textContent = "-- Dev Log --";
-    }
-    function logState() {
-      log(`State -> passwordOK:${isPasswordCorrect}, futureFlag:${futureFlag}`);
-    }
-    function generateError() {
-      try { throw new Error("Simulated error"); }
-      catch(e) {
-        errCount++;
-        log("Error: " + e.message);
-        updateMetrics();
-      }
-    }
-    function toggleFutureFlag() {
-      futureFlag = !futureFlag;
-      document.getElementById("futureFlag").textContent = futureFlag ? "ON" : "OFF";
-      log("Future Flag is now " + (futureFlag ? "ON" : "OFF"));
-    }
-    function handleFile() {
-      const f = event.target.files[0];
-      log("File selected: " + (f ? f.name : "none"));
-    }
-    function updateMetrics() {
-      document.getElementById("uptime").textContent = Math.floor((Date.now() - startTime)/1000) + "s";
-      document.getElementById("requests").textContent = reqCount;
-      document.getElementById("errors").textContent = errCount;
-    }
-    setInterval(updateMetrics, 1000);
-
-    // Common UI
-    function toggleDark() {
-      document.body.classList.toggle("dark");
-    }
-    function askPassword() {
-      const pw = prompt("Enter Admin Password:");
-      if (pw === "admin123") {
-        isPasswordCorrect = true;
-        document.getElementById("loginBtn").classList.add("hidden");
-        document.getElementById("devBtn").classList.remove("hidden");
-        document.getElementById("hackBtn").classList.remove("hidden");
-        log("Login successful. Dev & Terminal unlocked.");
-        alert("Access granted!");
-      } else {
-        alert("Incorrect password.");
-      }
-    }
-    function showTab(id) {
-      document.querySelectorAll(".tab").forEach(t => t.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
-    }
-    function addTask() {
-      const i = document.getElementById("todoInput"), ul = document.getElementById("todoList");
-      if (!i.value.trim()) return;
-      const li = document.createElement("li"); li.textContent = i.value;
-      li.onclick = () => li.remove();
-      ul.appendChild(li); i.value = "";
-    }
-    function embedURL() {
-      const u = document.getElementById("embedURL").value;
-      document.getElementById("embedArea").innerHTML = `<iframe src="${u}" allowfullscreen></iframe>`;
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+      document.getElementById(tab).classList.remove('hidden');
     }
 
-    // Terminal Commands (50+)
     const commands = {
-      hello:       () => "> Hello, admin!",
-      ban:         () => "> User banned (simulated).",
-      unban:       () => "> User unbanned.",
-      banall:      () => "> All users banned.",
-      banuser:     () => "> Specific user banned.",
-      unbanuser:   () => "> Specific user unbanned.",
-      shutdown:    () => { disableAll(); return "> System shut down."; },
-      terminate:   () => { document.body.innerHTML = "<pre style='color:white;font-size:2em;'>TERMINATION COMPLETE</pre>"; },
-      date:        () => `> ${new Date().toLocaleString()}`,
-      showtime:    () => `> ${new Date().toLocaleTimeString()}`,
-      joke:        () => "> Why do programmers prefer dark mode? Because light attracts bugs!",
-      help:        () => {
+      hello: () => "> Hello, admin!",
+      ban: () => "> User banned (simulated).",
+      unban: () => "> User unbanned.",
+      banall: () => "> All users banned.",
+      banuser: () => "> Specific user banned.",
+      unbanuser: () => "> Specific user unbanned.",
+      shutdown: () => { disableAll(); return "> System shut down."; },
+      terminate: () => {
+        document.body.innerHTML = "<pre style='color:white;font-size:2em;'>TERMINATION COMPLETE</pre>";
+      },
+      date: () => `> ${new Date().toLocaleString()}`,
+      showtime: () => `> ${new Date().toLocaleTimeString()}`,
+      joke: () => "> Why do programmers prefer dark mode? Because light attracts bugs!",
+      help: () => {
         let msg = "> Available commands:";
         for (let cmd in commands) msg += `\n  ${cmd}`;
         return msg;
       },
-      unknown:     () => "> Command not recognized. Type 'help' for list.",
-      hack:        () => "> Initiating simulated hack... Complete! Data breach successful.",
-      unlock:      () => "> Unlocking system... Welcome to the hidden area!",
-      users:       () => "> Displaying list of current users... [User1, User2, Admin]",
-      adduser:     () => "> User added to the system.",
-      deleteuser:  () => "> User deleted from the system.",
-      clearcache:  () => "> Cache cleared successfully.",
-      restart:     () => "> System restart initiated...",
-      reload:      () => "> Page reloaded.",
-      deploy:      () => "> Deploying code to production...",
-      backup:      () => "> System backup started...",
-      virus:       () => "> Virus detected! Deploying countermeasures...",
-      recover:     () => "> Recovery mode activated.",
-      disable:     () => "> Disabling dangerous operations...",
-      engage:      () => "> Engaging defense protocols...",
-      freeze:      () => "> Freezing user activity for 10 seconds..."
+      unknown: () => "> Command not recognized. Type 'help' for list.",
+      hack: () => "> Initiating simulated hack... Complete! Data breach successful.",
+      unlock: () => "> Unlocking system... Welcome to the hidden area!",
+      users: () => "> Displaying list of current users... [User1, User2, Admin]",
+      adduser: () => "> User added to the system.",
+      deleteuser: () => "> User deleted from the system.",
+      clearcache: () => "> Cache cleared successfully.",
+      restart: () => "> System restart initiated...",
+      reload: () => "> Page reloaded.",
+      deploy: () => "> Deploying code to production...",
+      backup: () => "> System backup started...",
+      virus: () => "> Virus detected! Deploying countermeasures...",
+      recover: () => "> Recovery mode activated.",
+      disable: () => "> Disabling dangerous operations...",
+      engage: () => "> Engaging defense protocols...",
+      freeze: () => "> Freezing user activity for 10 seconds...",
+      time: () => `> Current time: ${new Date().toLocaleTimeString()}`,
+      clear: () => {
+        document.getElementById("terminalOutput").textContent = "> Terminal cleared.";
+        return "";
+      },
+      whoami: () => "> You are the supreme admin.",
+      uptime: () => `> Uptime: ${Math.floor((Date.now() - startTime) / 1000)}s`,
+      status: () => `> System Status: OK\n> Requests: ${reqCount}, Errors: ${errCount}`,
+      future: () => futureFlag ? "> The future is ON." : "> The future is OFF.",
+      echo: () => "> Echo... echo... echo...",
+      secret: () => "> 🧪 SECRET FOUND: Welcome to Vault 42.",
+      motivate: () => "> Keep pushing forward, even if your code breaks.",
+      error: () => { generateError(); return "> Simulated error triggered."; },
+      logme: () => { log("Manual log from terminal."); return "> Logged!"; },
+      toggleflag: () => { toggleFutureFlag(); return "> Toggled future flag."; },
+      addreq: () => { reqCount++; updateMetrics(); return "> Fake request added."; },
+      reset: () => { reqCount = 0; errCount = 0; return "> Counts reset."; },
+      reboot: () => "> Rebooting system... Just kidding!",
+      darkmode: () => { toggleDark(); return "> Dark mode toggled."; },
+      login: () => { askPassword(); return "> Prompting login..."; },
+      about: () => "> Admin Panel v3.5 | Created by Gravix Realm Dev Team",
+      contact: () => "> Contact: admin@example.com",
+      version: () => "> Version: 3.5.0",
+      license: () => "> Licensed for awesome admins only.",
+      ping: () => "> Pong!",
+      pong: () => "> Ping!",
+      idk: () => "> Same bro, same.",
+      commands: () => commands.help(),
+      cls: () => commands.clear(),
+      sudo: () => "> Access granted: You're always root here.",
+      joke2: () => "> Real devs count from 0.",
+      rickroll: () => "> Never gonna give you up, never gonna let you down...",
+      openyoutube: () => {
+        window.open("https://youtube.com", "_blank");
+        return "> Opening YouTube...";
+      },
+      openwiki: () => {
+        window.open("https://en.wikipedia.org", "_blank");
+        return "> Opening Wikipedia...";
+      },
+      devtools: () => "> You already have them, remember?",
+      scan: () => "> Scanning... 0 threats found. You're clean.",
+      ascii: () => `> (•_•)\n> ( •_•)>⌐■-■\n> (⌐■_■)`,
+      fortune: () => "> You will debug a bug nobody else could.",
+      ai: () => "> I am already the AI. Nice try.",
+      secretcode: () => "> You found the secret code: XG42-ALPHA!",
+      todo: () => "> Don't forget to hydrate and commit your code.",
+      notes: () => "> Remember: Terminal > GUI.",
+      matrix: () => "> Wake up, Neo...",
+      glitch: () => "> [System Glitch Detected] ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒",
+      coreru: () => "> Core routines: Active. Uplink: Stable.",
+      firewall: () => "> 🔥 Firewall: Engaged and secure.",
+      easteregg: () => "> 🥚 You just cracked an egg. Congrats.",
+      qrcode: () => "> Imagine there's a QR code here. Now scan it."
     };
+
     function runCommand() {
       const input = document.getElementById("terminalInput").value;
       const output = document.getElementById("terminalOutput");
       const cmd = commands[input.trim().toLowerCase()] || commands.unknown;
-      output.textContent += "\n" + cmd();
+      const result = cmd();
+      if (result) output.textContent += "\n" + result;
       document.getElementById("terminalInput").value = '';
     }
   </script>
